@@ -530,7 +530,7 @@ def draw_text_center(text, font, color, surface, y):
     return text_rect  # Returns position to detect mouse collision
 
 def show_menu():
-    global start_time, has_key, boost_timer, spawn_enemy_after_delay, spawn_enemy_delay_start, paused, player_group, enemy_group, item_group, key_group, player, key, game_exit_rect, key_pos, exit_pos, HATE_VALUE
+    global start_time, has_key, boost_timer, spawn_enemy_after_delay, spawn_enemy_delay_start, paused, player_group, enemy_group, item_group, key_group, player, key, game_exit_rect, key_pos, exit_pos, ENEMY_SPEED, HATE_VALUE
     kill_all_sprite()
 
     title_font = pygame.font.Font("Cubic_11.ttf", 48)
@@ -592,6 +592,8 @@ def show_menu():
                     item_group = pygame.sprite.Group()
                     key_group = pygame.sprite.Group()
 
+                    HATE_VALUE = 0
+
                     difficulty_parameter_setting(DIFFICULTY)
 
                     spawn_items()
@@ -609,8 +611,6 @@ def show_menu():
                     boost_timer = 0
                     spawn_enemy_after_delay = False
                     spawn_enemy_delay_start = 0
-
-                    HATE_VALUE = 0
 
                     paused = False
                     running_menu = False
