@@ -59,42 +59,54 @@ There are four types of keys, and one key will be randomly generated each time y
 <img width="40" height="40" alt="key_2" src="https://github.com/user-attachments/assets/1ff1828c-ea58-4795-8026-b26ba459803d" />
 <img width="40" height="40" alt="key_1" src="https://github.com/user-attachments/assets/0a20e66c-818b-4558-8d99-b225dd0201e9" />
 
+## About the game of Escape From Qin Shi Huang
+
+This is a game based on a meme that has recently become quite popular in the Chinese community. The meme is called "Qin Shi Huang Riding a Polar Bear," and it features a nonsensical, AI-generated video. Related link:
+
+- https://www.youtube.com/watch?v=vUHBZgvSzG8
+
+## Support Language
+
+- zh_tw : 繁體中文
+- zh_cn : 簡體中文
+- en : English
+
 ## Materials used in the game
 
 ### Images
 
-exit door : https://opengameart.org/content/exit-door
+- exit door : https://opengameart.org/content/exit-door
 
-keys : https://opengameart.org/content/key-icons
+- keys : https://opengameart.org/content/key-icons
 
-bolt : https://opengameart.org/content/bolt-0
+- bolt : https://opengameart.org/content/bolt-0
 
-snowflake : https://opengameart.org/content/snow-flake
+- snowflake : https://opengameart.org/content/snow-flake
 
-sword : https://opengameart.org/content/pixel-sword
+- sword : https://opengameart.org/content/pixel-sword
 
-player : https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.qiubiaoqing.com%2Fimg_detail%2F788452446585226948.html&psig=AOvVaw1xkRYY4P5pTR1-j9VOhSyL&ust=1753705798018000&source=images&cd=vfe&opi=89978449&ved=0CBUQjRxqFwoTCMCImsKF3Y4DFQAAAAAdAAAAABAE
+- player : https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.qiubiaoqing.com%2Fimg_detail%2F788452446585226948.html&psig=AOvVaw1xkRYY4P5pTR1-j9VOhSyL&ust=1753705798018000&source=images&cd=vfe&opi=89978449&ved=0CBUQjRxqFwoTCMCImsKF3Y4DFQAAAAAdAAAAABAE
 
-Qin Shi Huang : https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.qiubiaoqing.com%2Fimg_detail%2F784776974793968456.html&psig=AOvVaw3OYM8usP2urT8nhCESzHKS&ust=1753775026765000&source=images&cd=vfe&opi=89978449&ved=0CBQQjRxqFwoTCKjphbWH344DFQAAAAAdAAAAABAE
+- Qin Shi Huang : https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.qiubiaoqing.com%2Fimg_detail%2F784776974793968456.html&psig=AOvVaw3OYM8usP2urT8nhCESzHKS&ust=1753775026765000&source=images&cd=vfe&opi=89978449&ved=0CBQQjRxqFwoTCKjphbWH344DFQAAAAAdAAAAABAE
 
 ### Sounds
 
-menu_bgm : https://www.youtube.com/shorts/h7BOGExhmGg
+- menu_bgm : https://www.youtube.com/shorts/h7BOGExhmGg
 
-playing bgm : https://opengameart.org/content/c1-bgm
+- playing bgm : https://opengameart.org/content/c1-bgm
 
-victory bgm : https://opengameart.org/content/victory-song
+- victory bgm : https://opengameart.org/content/victory-song
 
-gameover bgm: https://opengameart.org/content/game-over-theme-ii
+- gameover bgm: https://opengameart.org/content/game-over-theme-ii
 
-sound effect (door open and hit) : https://opengameart.org/content/100-cc0-sfx
+- sound effect (door open and hit) : https://opengameart.org/content/100-cc0-sfx
 
-sound effect (menu_click) : https://opengameart.org/content/menu-selection-click
+- sound effect (menu_click) : https://opengameart.org/content/menu-selection-click
 
-sound effect (sword) : https://opengameart.org/content/3-melee-sounds
+- sound effect (sword) : https://opengameart.org/content/3-melee-sounds
 
-sound effect (freeze) : https://opengameart.org/content/freeze-spell-0
+- sound effect (freeze) : https://opengameart.org/content/freeze-spell-0
 
 ### Font
 
-Font : https://github.com/ACh-K/Cubic-11
+- Font : https://github.com/ACh-K/Cubic-11

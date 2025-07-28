@@ -6,11 +6,40 @@ Programming Language : Python
 
 from PIL import Image
 import pygame
+import json
+import os
 import sys
 import random
 import time
 import heapq
 import locale
+
+CONFIG_FILE = "config.json"
+
+default_config = {
+    "DIFFICULTY" : "normal",
+    "master_volume" : 1.0,
+    "music_volume" : 1.0,
+    "sfx_volume" : 1.0,
+}
+
+def load_config():
+    if os.path.exists(CONFIG_FILE):
+        with open(CONFIG_FILE, "r") as f:
+            try:
+                config = json.load(f)
+                return config
+            except json.JSONDecodeError:
+                print("config file is destroyed, loading the default of config")
+                return default_config
+    else:
+        return default_config
+
+def save_config(config):
+    with open(CONFIG_FILE, "w") as f:
+        json.dump(config, f, indent=4)
+
+config = load_config()
 
 WIDTH, HEIGHT = 800, 800
 TILE_SIZE = 40
@@ -26,9 +55,9 @@ INVISIBLE_DURATION = 5
 RED_DURATION = 5000
 BLUE_DURATION = 5000
 SPAWN_ITEMS_TIMES = 2
-DIFFICULTY = "normal"
+DIFFICULTY = config["DIFFICULTY"]
 
-master_volume, music_volume, sfx_volume = 1.0, 1.0, 1.0
+master_volume, music_volume, sfx_volume = config["master_volume"], config["music_volume"], config["sfx_volume"]
 
 # colors
 WHITE = (255, 255, 255)
@@ -83,11 +112,21 @@ key_images = [
     pygame.image.load("img/items/keys/key_4.png").convert_alpha()
 ]
 
+# initial sound volume
+
+pygame.mixer.music.set_volume(music_volume * master_volume)
+
+menu_click_sound.set_volume(sfx_volume * master_volume)
+door_open_sound.set_volume(sfx_volume * master_volume)
+hit_sound.set_volume(sfx_volume * master_volume)
+sword_sound.set_volume(sfx_volume * master_volume)
+freeze_sound.set_volume(sfx_volume * master_volume)
+
 # === Language Setting ===
 
 lang, encoding = locale.getdefaultlocale()
 
-current_language = "zh_tw"
+current_language = ""
 
 if lang == 'zh_TW':
     current_language = "zh_tw"
@@ -601,6 +640,7 @@ def show_menu():
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                save_config(config)
                 pygame.quit()
                 sys.exit()
             elif event.type == pygame.MOUSEBUTTONDOWN:
@@ -648,6 +688,7 @@ def show_menu():
                     show_HowToPlay()
                 elif exit_rect.collidepoint(event.pos):
                     menu_click_sound.play()
+                    save_config(config)
                     pygame.quit()
                     sys.exit()
                     
@@ -680,6 +721,7 @@ def show_settings():
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                save_config(config)
                 pygame.quit()
                 sys.exit()
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
@@ -728,6 +770,7 @@ def show_language_selection():
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                save_config(config)
                 pygame.quit()
                 sys.exit()
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
@@ -773,6 +816,7 @@ def show_difficulty():
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                save_config(config)
                 pygame.quit()
                 sys.exit()
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
@@ -786,14 +830,17 @@ def show_difficulty():
                         elif difficulty == translations[current_language]["easy"]:
                             menu_click_sound.play()
                             DIFFICULTY = "easy"
+                            config["DIFFICULTY"] = DIFFICULTY
                             print(f"選擇難度: {difficulty}")
                         elif difficulty == translations[current_language]["normal"]:
                             menu_click_sound.play()
                             DIFFICULTY = "normal"
+                            config["DIFFICULTY"] = DIFFICULTY
                             print(f"選擇難度: {difficulty}")
                         elif difficulty == translations[current_language]["difficult"]:
                             menu_click_sound.play()
                             DIFFICULTY = "difficult"
+                            config["DIFFICULTY"] = DIFFICULTY
                             print(f"選擇難度: {difficulty}")
 
 def show_pause_menu():
@@ -819,6 +866,7 @@ def show_pause_menu():
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                save_config(config)
                 pygame.quit()
                 sys.exit()
             elif event.type == pygame.KEYDOWN:
@@ -865,6 +913,7 @@ def show_game_over_screen():
         
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                save_config(config)
                 pygame.quit()
                 sys.exit()
             elif event.type == pygame.MOUSEBUTTONDOWN:
@@ -898,6 +947,7 @@ def show_victory_screen():
         
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                save_config(config)
                 pygame.quit()
                 sys.exit()
             elif event.type == pygame.MOUSEBUTTONDOWN and button_rect.collidepoint(event.pos):
@@ -968,6 +1018,7 @@ def show_sound_setting():
         # Event Handling
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                save_config(config)
                 pygame.quit()
                 sys.exit()
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
@@ -992,10 +1043,13 @@ def show_sound_setting():
             new_vol = max(0, min(1, relative_x / slider_width))
             if dragging_slider == translations[current_language]["master_volume"]:
                 master_volume = new_vol
+                config["master_volume"] = master_volume
             elif dragging_slider == translations[current_language]["bgm"]:
                 music_volume = new_vol
+                config["master_volume"] = music_volume
             elif dragging_slider == translations[current_language]["se"]:
                 sfx_volume = new_vol
+                config["master_volume"] = sfx_volume
 
         pygame.mixer.music.set_volume(music_volume * master_volume)
 
@@ -1036,6 +1090,7 @@ def show_HowToPlay():
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                save_config(config)
                 pygame.quit()
                 sys.exit()
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
@@ -1076,8 +1131,8 @@ def difficulty_parameter_setting(level):
         ENEMY_SPEED = 4 + HATE_VALUE
         BOOST_DURATION = 4000
         FREEZE_DURATION = 3000
-        ENEMY_MOVE_INTERVAL = 150
-        INVISIBLE_DURATION = 3
+        ENEMY_MOVE_INTERVAL = 175
+        INVISIBLE_DURATION = 5
         RED_DURATION = 3000
         BLUE_DURATION = 3000
         SPAWN_ITEMS_TIMES = 3
@@ -1279,6 +1334,8 @@ while running:
         screen.blit(text_surface_blue, (10 + icon_size + 5, y_next))
 
     pygame.display.flip()
+
+save_config(config)
 
 pygame.quit()
 sys.exit()
