@@ -6,5 +6,10 @@ sword : https://opengameart.org/content/pixel-sword
 player : https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.qiubiaoqing.com%2Fimg_detail%2F788452446585226948.html&psig=AOvVaw1xkRYY4P5pTR1-j9VOhSyL&ust=1753705798018000&source=images&cd=vfe&opi=89978449&ved=0CBUQjRxqFwoTCMCImsKF3Y4DFQAAAAAdAAAAABAE
 
 menu_bgm : shttps://www.youtube.com/shorts/h7BOGExhmGg
+playing bgm : https://opengameart.org/content/c1-bgm
+
+sound effect (door open and hit) : https://opengameart.org/content/100-cc0-sfx
+
+sound effect (menu_click) : https://opengameart.org/content/menu-selection-click
 
 Font : https://github.com/ACh-K/Cubic-11

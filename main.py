@@ -27,6 +27,8 @@ BLUE_DURATION = 5000
 SPAWN_ITEMS_TIMES = 2
 DIFFICULTY = "normal"
 
+master_volume, music_volume, sfx_volume = 1.0, 1.0, 1.0
+
 # colors
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
@@ -46,6 +48,18 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("逃離秦始皇 ( Escape from Qin Shi Huang )")
 clock = pygame.time.Clock()
 font = pygame.font.Font("Cubic_11.ttf", 22)
+
+# initial mixer
+pygame.mixer.init()
+
+# loading bgm
+menu_music_path = "sound/menu/menu_bgm.ogg"
+playing_music_path = "sound/playing/c1.ogg"
+
+# loading sound effect
+menu_click_sound = pygame.mixer.Sound("sound/sound_effect/menu/menu_selection_click.ogg")
+door_open_sound = pygame.mixer.Sound("sound/sound_effect/door_open/door_open.ogg")
+hit_sound = pygame.mixer.Sound("sound/sound_effect/hit/hit.ogg")
 
 exit_image = pygame.image.load("img/exit/exit.png").convert_alpha()
 
@@ -89,11 +103,15 @@ translations = {
         "blue_time" : "冰凍持續：",
         "difficulty" : "難度",
         "difficulty_setting" : "難度設定",
+        "now_difficulty" : "現在難度:",
         "easy" : "簡單",
         "normal" : "普通",
         "difficult" : "困難",
         "gameover" : "遊戲結束，你被秦始皇抓到了",
         "pass" : "恭喜通關！逃離秦始皇的魔掌！",
+        "master_volume" : "主音量",
+        "bgm" : "背景音量",
+        "se" : "音效音量",
     },
     "zh_cn": {
         "title": "逃离秦始皇",
@@ -117,11 +135,15 @@ translations = {
         "blue_time" : "冰凍持续：",
         "difficulty" : "难度",
         "difficulty_setting" : "难度设置",
+        "now_difficulty" : "现在难度:",
         "easy" : "简单",
         "normal" : "普通",
         "difficult" : "困难",
         "gameover" : "游戏结束，你被秦始皇抓到了",
         "pass" : "恭喜通关！逃离秦始皇的魔掌！",
+        "master_volume" : "主音量",
+        "bgm" : "背景音量",
+        "se" : "音效音量",
     },
     "en": {
         "title": "Escape from Qin Shi Huang",
@@ -145,11 +167,15 @@ translations = {
         "blue_time" : "Frozen Time:",
         "difficulty" : "Difficulty",
         "difficulty_setting" : "Difficulty Setting",
+        "now_difficulty" : "Current Difficulty:",
         "easy" : "Easy",
         "normal" : "Normal",
         "difficult" : "Difficult",
         "gameover" : "Game Over, You Failed",
-        "pass" : "Complete the game!"
+        "pass" : "Complete the game!",
+        "master_volume" : "Main Volume",
+        "bgm" : "BGM Volume",
+        "se" : "Sound Effect Volume",
     }
 }
 
@@ -361,7 +387,7 @@ class Enemy(pygame.sprite.Sprite):
     def __init__(self, pos):
         super().__init__()
         # Load a multi-frame animation. Assumes you have split it into multiple images or decomposed the GIF.
-        self.frames = [pygame.image.load(f"img/enemy/frame-{i}.png").convert_alpha() for i in range(1, 31)]
+        self.frames = [pygame.image.load(f"img/enemy/frame-{i}.png").convert_alpha() for i in range(1, 27)]
         self.current_frame = 0
         self.image = self.frames[self.current_frame]
         self.rect = self.image.get_rect(topleft=pos)
@@ -371,7 +397,7 @@ class Enemy(pygame.sprite.Sprite):
         self.path_index = 0
         self.move_timer = 0
         self.animation_timer = 0
-        self.animation_speed = 150  # millisecond, enemy animation speed every fps
+        self.animation_speed = 10  # millisecond, enemy animation speed every fps
 
         self.facing_right = True
 
@@ -393,10 +419,10 @@ class Enemy(pygame.sprite.Sprite):
             step_y = 0
             if target[0] > self.rect.x:
                 step_x = ENEMY_SPEED
-                self.facing_right = True
+                self.facing_right = False
             elif target[0] < self.rect.x:
                 step_x = -ENEMY_SPEED
-                self.facing_right = False
+                self.facing_right = True
             if target[1] > self.rect.y:
                 step_y = ENEMY_SPEED
             elif target[1] < self.rect.y:
@@ -494,6 +520,9 @@ def show_menu():
                 sys.exit()
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if play_rect.collidepoint(event.pos):
+                    
+                    menu_click_sound.play()
+
                     player = Player((TILE_SIZE, TILE_SIZE))
                     player_group = pygame.sprite.Group(player)
                     enemy_group = pygame.sprite.Group()
@@ -523,8 +552,10 @@ def show_menu():
                     paused = False
                     running_menu = False
                 elif setting_rect.collidepoint(event.pos):
+                    menu_click_sound.play()
                     show_settings()
                 elif exit_rect.collidepoint(event.pos):
+                    menu_click_sound.play()
                     pygame.quit()
                     sys.exit()
                     
@@ -565,13 +596,17 @@ def show_settings():
                 for option, rect in option_rects:
                     if rect.collidepoint(event.pos):
                         if option == translations[current_language]["back"]:
+                            menu_click_sound.play()
                             running_settings = False
                         elif option == translations[current_language]["language"]:
+                            menu_click_sound.play()
                             show_language_selection()
                         elif option == translations[current_language]["difficulty"]:
+                            menu_click_sound.play()
                             show_difficulty()
-                        else:
-                            print(f"{option} clicked (尚未實作)")
+                        elif option == translations[current_language]["sound"]:
+                            menu_click_sound.play()
+                            show_sound_setting()
 
 def show_language_selection():
     global current_language
@@ -609,8 +644,10 @@ def show_language_selection():
                 for lang_code, rect in option_rects:
                     if rect.collidepoint(event.pos):
                         if lang_code == "back":
+                            menu_click_sound.play()
                             running_language = False
                         else:
+                            menu_click_sound.play()
                             current_language = lang_code
                             print(f"選擇語言: {translations[lang_code]['traditional_chinese' if lang_code == 'zh_tw' else 'simplified_chinese' if lang_code == 'zh_cn' else 'english']}")
 
@@ -628,6 +665,8 @@ def show_difficulty():
     while running_difficulty:
         screen.fill(WHITE)
         draw_text_center(translations[current_language]["difficulty_setting"], font, BLACK, screen, HEIGHT // 4)
+
+        draw_text_center(f"{translations[current_language]["now_difficulty"]} {translations[current_language][DIFFICULTY]}", font, BLACK, screen, HEIGHT // 4 + 50)
 
         mouse_pos = pygame.mouse.get_pos()
         option_rects = []
@@ -650,14 +689,18 @@ def show_difficulty():
                 for difficulty, rect in option_rects:
                     if rect.collidepoint(event.pos):
                         if difficulty == translations[current_language]["back"]:
+                            menu_click_sound.play()
                             running_difficulty = False
                         elif difficulty == translations[current_language]["easy"]:
+                            menu_click_sound.play()
                             DIFFICULTY = "easy"
                             print(f"選擇難度: {difficulty}")
                         elif difficulty == translations[current_language]["normal"]:
+                            menu_click_sound.play()
                             DIFFICULTY = "normal"
                             print(f"選擇難度: {difficulty}")
                         elif difficulty == translations[current_language]["difficult"]:
+                            menu_click_sound.play()
                             DIFFICULTY = "difficult"
                             print(f"選擇難度: {difficulty}")
 
@@ -694,10 +737,13 @@ def show_pause_menu():
                 for option, rect in option_rects:
                     if rect.collidepoint(event.pos):
                         if option == translations[current_language]["resume"]:
+                            menu_click_sound.play()
                             pause_running = False
                         elif option == translations[current_language]["setting"]:
+                            menu_click_sound.play()
                             show_settings()
                         elif option == translations[current_language]["back_menu"]:
+                            menu_click_sound.play()
                             return "main_menu"
     return "resume"
 
@@ -726,6 +772,7 @@ def show_game_over_screen():
                 sys.exit()
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if button_rect.collidepoint(event.pos):
+                    menu_click_sound.play()
                     running_game_over = False
 
 def show_victory_screen():
@@ -752,7 +799,109 @@ def show_victory_screen():
                 pygame.quit()
                 sys.exit()
             elif event.type == pygame.MOUSEBUTTONDOWN and button_rect.collidepoint(event.pos):
+                menu_click_sound.play()
                 running_victory = False
+
+def show_sound_setting():
+    global master_volume, music_volume, sfx_volume
+    
+    slider_width = 300
+    slider_height = 20
+    slider_x = WIDTH // 2 - slider_width // 2
+    start_y = HEIGHT // 3
+    gap_y = 70
+
+    dragging_slider = None  # None or "master" / "music" / "sfx"
+    
+    running_sound_setting = True
+    while running_sound_setting:
+        screen.fill(WHITE)
+        draw_text_center(translations[current_language]["sound"], font, BLACK, screen, HEIGHT // 6)
+
+        mouse_pos = pygame.mouse.get_pos()
+        mouse_pressed = pygame.mouse.get_pressed()
+
+        # Item titles and slider coordinates
+        items = [
+            (translations[current_language]["master_volume"], master_volume),
+            (translations[current_language]["bgm"], music_volume),
+            (translations[current_language]["se"], sfx_volume),
+        ]
+
+        font_size = font.get_height()
+        slider_rects = []
+        label_rects = []
+
+        for i, (label, vol) in enumerate(items):
+            y = start_y + i * gap_y
+            # Show the labels
+            label_rect = draw_text_center(label, font, BLACK, screen, y - 15)
+            label_rects.append(label_rect)
+
+            # Calculate the slider position (bar + slider)
+            bar_rect = pygame.Rect(slider_x, y, slider_width, slider_height)
+            # Slider x position: according to volume percentage
+            knob_x = slider_x + int(vol * slider_width)
+            knob_rect = pygame.Rect(knob_x - 10, y - 5, 20, slider_height + 10)
+
+            # Draw a long background
+            pygame.draw.rect(screen, GRAY, bar_rect)
+            # Draw the filled proportion
+            pygame.draw.rect(screen, RED, (slider_x, y, knob_x - slider_x, slider_height))
+            # Draw the slider
+            pygame.draw.rect(screen, RED if knob_rect.collidepoint(mouse_pos) or dragging_slider == label else BLACK, knob_rect)
+
+            slider_rects.append((label, bar_rect, knob_rect))
+
+            # Display volume percentage text
+            vol_percent = int(vol * 100)
+            vol_text = font.render(f"{vol_percent}%", True, BLACK)
+            screen.blit(vol_text, (slider_x + slider_width + 20, y - font_size // 2))
+
+        # Show Back Button
+        back_text = translations[current_language]["back"]
+        back_color = RED if pygame.Rect(WIDTH // 2 - 100, HEIGHT - 80, 200, 50).collidepoint(mouse_pos) else GRAY
+        back_rect = draw_text_center(back_text, font, back_color, screen, HEIGHT - 60)
+
+        # Event Handling
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                running_sound_setting = False
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if back_rect.collidepoint(event.pos):
+                    menu_click_sound.play()
+                    running_sound_setting = False
+                # Press the slider to start dragging
+                for label, bar_rect, knob_rect in slider_rects:
+                    if knob_rect.collidepoint(event.pos) or bar_rect.collidepoint(event.pos):
+                        dragging_slider = label
+                        break
+            elif event.type == pygame.MOUSEBUTTONUP:
+                dragging_slider = None
+        
+        # Drag the slider to adjust the volume
+        if dragging_slider:
+            _, bar_rect, _ = next(i for i in slider_rects if i[0] == dragging_slider)
+            # Calculate slider position (mouse x controls volume)
+            relative_x = mouse_pos[0] - bar_rect.left
+            new_vol = max(0, min(1, relative_x / slider_width))
+            if dragging_slider == translations[current_language]["master_volume"]:
+                master_volume = new_vol
+            elif dragging_slider == translations[current_language]["bgm"]:
+                music_volume = new_vol
+            elif dragging_slider == translations[current_language]["se"]:
+                sfx_volume = new_vol
+
+        pygame.mixer.music.set_volume(music_volume * master_volume)
+
+        menu_click_sound.set_volume(sfx_volume * master_volume)
+        door_open_sound.set_volume(sfx_volume * master_volume)
+        hit_sound.set_volume(sfx_volume * master_volume)
+
+        pygame.display.flip()
 
 def difficulty_parameter_setting(level):
     global BOOST_SPEED, ENEMY_SPEED, HATE_VALUE, BOOST_DURATION, FREEZE_DURATION, ENEMY_MOVE_INTERVAL, INVISIBLE_DURATION, RED_DURATION, BLUE_DURATION, SPAWN_ITEMS_TIMES
@@ -768,7 +917,7 @@ def difficulty_parameter_setting(level):
         SPAWN_ITEMS_TIMES = 8
         print("Now is easy")
     if level == "normal":
-        BOOST_SPEED = 4
+        BOOST_SPEED = 5
         ENEMY_SPEED = 3 + HATE_VALUE
         BOOST_DURATION = 5000
         FREEZE_DURATION = 3000
@@ -901,7 +1050,7 @@ while running:
             # Trigger the red item effect (eliminate the enemy, restart the enemy production timer)
             for enemy in enemy_group:
                 enemy.kill()
-                HATE_VALUE += 1
+                HATE_VALUE += 2
             spawn_enemy_after_delay = True
             spawn_enemy_delay_start = pygame.time.get_ticks()
             player.conditional_effect_active_red = False
