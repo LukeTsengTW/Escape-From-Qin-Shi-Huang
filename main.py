@@ -659,9 +659,9 @@ def show_menu():
     title_font = pygame.font.Font("Cubic_11.ttf", 48)
     running_menu = True
 
-    #pygame.mixer.music.stop()
-    #pygame.mixer.music.load(menu_music_path)
-    #pygame.mixer.music.play(-1)
+    pygame.mixer.music.stop()
+    pygame.mixer.music.load(menu_music_path)
+    pygame.mixer.music.play(-1)
 
     while running_menu:
         screen.fill(WHITE)
