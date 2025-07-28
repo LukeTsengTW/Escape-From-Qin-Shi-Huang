@@ -81,17 +81,19 @@ This is a game based on a meme that has recently become quite popular in the Chi
 
 - exit door : https://opengameart.org/content/exit-door
 
-- keys : https://opengameart.org/content/key-icons
+- (Image Author : BizmasterStudios) keys : https://opengameart.org/content/key-icons
 
-- bolt : https://opengameart.org/content/bolt-0
+- (Image Author : BananaOwl) bolt : https://opengameart.org/content/bolt-0
 
 - snowflake : https://opengameart.org/content/snow-flake
 
-- sword : https://opengameart.org/content/pixel-sword
+- (Image Author : Shaffan) sword : https://opengameart.org/content/pixel-sword
 
 - sword_slash : https://opengameart.org/content/pixel-art-sword-slash-effect
 
 - snowflake_freeze : https://opengameart.org/content/animated-particle-effects-1
+
+- (Image Author : Raphael Hatencia) boost effect : https://ragnapixel.itch.io/particle-fx
 
 - player : https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.qiubiaoqing.com%2Fimg_detail%2F788452446585226948.html&psig=AOvVaw1xkRYY4P5pTR1-j9VOhSyL&ust=1753705798018000&source=images&cd=vfe&opi=89978449&ved=0CBUQjRxqFwoTCMCImsKF3Y4DFQAAAAAdAAAAABAE
 
@@ -103,13 +105,13 @@ This is a game based on a meme that has recently become quite popular in the Chi
 
 - playing bgm : https://opengameart.org/content/c1-bgm
 
-- victory bgm : https://opengameart.org/content/victory-song
+- (BGM Author : el-corleo) victory bgm : https://opengameart.org/content/victory-song
 
 - gameover bgm: https://opengameart.org/content/game-over-theme-ii
 
 - sound effect (door open and hit) : https://opengameart.org/content/100-cc0-sfx
 
-- sound effect (menu_click) : https://opengameart.org/content/menu-selection-click
+- (SE Author : NenadSimic) : sound effect (menu_click) : https://opengameart.org/content/menu-selection-click
 
 - sound effect (sword) : https://opengameart.org/content/3-melee-sounds
 

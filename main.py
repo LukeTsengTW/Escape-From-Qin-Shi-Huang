@@ -97,6 +97,7 @@ door_open_sound = pygame.mixer.Sound("sound/sound_effect/door_open/door_open.ogg
 hit_sound = pygame.mixer.Sound("sound/sound_effect/hit/hit.ogg")
 sword_sound = pygame.mixer.Sound("sound/sound_effect/hit/sword.ogg")
 freeze_sound = pygame.mixer.Sound("sound/sound_effect/hit/freeze.ogg")
+pickUp_sound = pygame.mixer.Sound("sound/sound_effect/pick_up/pick_up.ogg")
 
 menu_image_1 = pygame.image.load("img/menu/background_1.png").convert_alpha()
 menu_image_2 = pygame.image.load("img/menu/background_2.png").convert_alpha()
@@ -125,6 +126,7 @@ door_open_sound.set_volume(sfx_volume * master_volume)
 hit_sound.set_volume(sfx_volume * master_volume)
 sword_sound.set_volume(sfx_volume * master_volume)
 freeze_sound.set_volume(sfx_volume * master_volume)
+pickUp_sound.set_volume(sfx_volume * master_volume)
 
 # === Language Setting ===
 
@@ -426,7 +428,18 @@ class Player(pygame.sprite.Sprite):
         self.invincible = False
         self.invincible_start_time = 0
 
+        self.boost_frames = [pygame.image.load(f"img/items/bolt_effect/frame-{i}.png").convert_alpha() for i in range(7)]
+        self.boost_current_frame = 0
+        self.boost_animation_timer = 0
+        self.boost_animation_speed = 35
+        self.is_boost = False
+
     def update(self, keys):
+        if self.is_boost:
+            if pygame.time.get_ticks() - self.boost_animation_timer > self.boost_animation_speed:
+                self.boost_animation_timer = pygame.time.get_ticks()
+                self.boost_current_frame = (self.boost_current_frame + 1) % len(self.boost_frames)
+
         # movement logics
         
         dx = dy = 0
@@ -494,6 +507,10 @@ class Player(pygame.sprite.Sprite):
             self.conditional_effect_active_red = False
         if self.conditional_effect_active_blue and now - self.conditional_effect_start_time_blue > BLUE_DURATION:
             self.conditional_effect_active_blue = False
+    
+    def draw(self, surface):
+        if self.is_boost:
+            surface.blit(self.boost_frames[self.boost_current_frame], self.rect)
 
 class Enemy(pygame.sprite.Sprite):
     def __init__(self, pos):
@@ -1099,6 +1116,7 @@ def show_sound_setting():
         hit_sound.set_volume(sfx_volume * master_volume)
         sword_sound.set_volume(sfx_volume * master_volume)
         freeze_sound.set_volume(sfx_volume * master_volume)
+        pickUp_sound.set_volume(sfx_volume * master_volume)
 
         pygame.display.flip()
 
@@ -1258,6 +1276,7 @@ while running:
 
     # ==== Handling item pickup ====
     for item in pygame.sprite.spritecollide(player, item_group, True):
+        pickUp_sound.play()
         if item.type == 'red':
             player.conditional_effect_active_red = True
             player.conditional_effect_start_time_red = pygame.time.get_ticks()
@@ -1265,11 +1284,13 @@ while running:
             player.conditional_effect_active_blue = True
             player.conditional_effect_start_time_blue = pygame.time.get_ticks()
         elif item.type == 'yellow':
+            player.is_boost = True
             player.speed = BOOST_SPEED
             boost_timer = pygame.time.get_ticks()
 
     # Speed-up effect restored
     if pygame.time.get_ticks() - boost_timer > BOOST_DURATION:
+        player.is_boost = False
         player.speed = PLAYER_SPEED
 
     collected_keys = pygame.sprite.spritecollide(player, key_group, True)
@@ -1377,6 +1398,8 @@ while running:
 
     for enemy in enemy_group:
         enemy.draw(screen)
+
+    player.draw(screen)
 
     pygame.display.flip()
 

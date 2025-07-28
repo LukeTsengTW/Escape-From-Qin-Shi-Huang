@@ -10,6 +10,8 @@ slash : https://opengameart.org/content/pixel-art-sword-slash-effect
 
 freeze : https://opengameart.org/content/animated-particle-effects-1
 
+(Image Author : Raphael Hatencia) boost effect : https://ragnapixel.itch.io/particle-fx
+
 menu_bgm : shttps://www.youtube.com/shorts/h7BOGExhmGg
 playing bgm : https://opengameart.org/content/c1-bgm
 victory bgm : https://opengameart.org/content/victory-song
@@ -22,5 +24,7 @@ sound effect (menu_click) : https://opengameart.org/content/menu-selection-click
 sound effect (sword) : https://opengameart.org/content/3-melee-sounds
 
 sound effect (freeze) : https://opengameart.org/content/freeze-spell-0
+
+sound effect (pickUp) : https://opengameart.org/content/inventory-sound-effects
 
 Font : https://github.com/ACh-K/Cubic-11
