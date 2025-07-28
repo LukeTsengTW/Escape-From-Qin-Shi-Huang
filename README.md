@@ -49,18 +49,27 @@ note : Note: Whenever Qin Shi Huang is killed, his speed will increase by two.
 ### Images
 
 exit door : https://opengameart.org/content/exit-door
+
 keys : https://opengameart.org/content/key-icons
+
 bolt : https://opengameart.org/content/bolt-0
+
 snowflake : https://opengameart.org/content/snow-flake
+
 sword : https://opengameart.org/content/pixel-sword
+
 player : https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.qiubiaoqing.com%2Fimg_detail%2F788452446585226948.html&psig=AOvVaw1xkRYY4P5pTR1-j9VOhSyL&ust=1753705798018000&source=images&cd=vfe&opi=89978449&ved=0CBUQjRxqFwoTCMCImsKF3Y4DFQAAAAAdAAAAABAE
+
 Qin Shi Huang : https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.qiubiaoqing.com%2Fimg_detail%2F784776974793968456.html&psig=AOvVaw3OYM8usP2urT8nhCESzHKS&ust=1753775026765000&source=images&cd=vfe&opi=89978449&ved=0CBQQjRxqFwoTCKjphbWH344DFQAAAAAdAAAAABAE
 
 ### Sounds
 
 menu_bgm : shttps://www.youtube.com/shorts/h7BOGExhmGg
+
 playing bgm : https://opengameart.org/content/c1-bgm
+
 victory bgm : https://opengameart.org/content/victory-song
+
 gameover bgm: https://opengameart.org/content/game-over-theme-ii
 
 sound effect (door open and hit) : https://opengameart.org/content/100-cc0-sfx
