@@ -15,4 +15,8 @@ sound effect (door open and hit) : https://opengameart.org/content/100-cc0-sfx
 
 sound effect (menu_click) : https://opengameart.org/content/menu-selection-click
 
+sound effect (sword) : https://opengameart.org/content/3-melee-sounds
+
+sound effect (freeze) : https://opengameart.org/content/freeze-spell-0
+
 Font : https://github.com/ACh-K/Cubic-11

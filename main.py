@@ -10,6 +10,7 @@ import sys
 import random
 import time
 import heapq
+import locale
 
 WIDTH, HEIGHT = 800, 800
 TILE_SIZE = 40
@@ -61,6 +62,11 @@ gameover_music_path = "sound/bgm/gameover/gameover.ogg"
 menu_click_sound = pygame.mixer.Sound("sound/sound_effect/menu/menu_selection_click.ogg")
 door_open_sound = pygame.mixer.Sound("sound/sound_effect/door_open/door_open.ogg")
 hit_sound = pygame.mixer.Sound("sound/sound_effect/hit/hit.ogg")
+sword_sound = pygame.mixer.Sound("sound/sound_effect/hit/sword.ogg")
+freeze_sound = pygame.mixer.Sound("sound/sound_effect/hit/freeze.ogg")
+
+menu_image_1 = pygame.image.load("img/menu/background_1.png").convert_alpha()
+menu_image_2 = pygame.image.load("img/menu/background_2.png").convert_alpha()
 
 exit_image = pygame.image.load("img/exit/exit.png").convert_alpha()
 
@@ -79,7 +85,18 @@ key_images = [
 
 # === Language Setting ===
 
-current_language = "zh_tw"  # Default as traditional Chinese
+lang, encoding = locale.getdefaultlocale()
+
+current_language = "zh_tw"
+
+if lang == 'zh_TW':
+    current_language = "zh_tw"
+elif lang == 'zh_CN':
+    current_language = "zh_cn"
+elif lang.startswith('en'):
+    current_language = "en"
+else:
+    current_language = "zh_tw"
 
 font = pygame.font.Font("Cubic_11.ttf", 18)
 
@@ -533,17 +550,26 @@ def show_menu():
     global start_time, has_key, boost_timer, spawn_enemy_after_delay, spawn_enemy_delay_start, paused, player_group, enemy_group, item_group, key_group, player, key, game_exit_rect, key_pos, exit_pos, ENEMY_SPEED, HATE_VALUE
     kill_all_sprite()
 
+    menu_image_1_rect = pygame.Rect(20, HEIGHT // 4, 194, 259)
+    menu_image_1_scaled = pygame.transform.scale(menu_image_1, (194 * 1.5, 259 * 1.5))
+    menu_image_1_scaled = pygame.transform.flip(menu_image_1_scaled, True, False)
+
+    menu_image_2_rect = pygame.Rect(40, HEIGHT // 4, 408, 612)
+
     title_font = pygame.font.Font("Cubic_11.ttf", 48)
     running_menu = True
 
-    pygame.mixer.music.stop()
-    pygame.mixer.music.load(menu_music_path)
-    pygame.mixer.music.play(-1)
+    #pygame.mixer.music.stop()
+    #pygame.mixer.music.load(menu_music_path)
+    #pygame.mixer.music.play(-1)
 
     while running_menu:
         screen.fill(WHITE)
         screen_title = translations[current_language]["title"]
         draw_text_center(screen_title, title_font, BLACK, screen, HEIGHT // 4)
+
+        screen.blit(menu_image_1_scaled, menu_image_1_rect.topleft)
+        screen.blit(menu_image_2, menu_image_2_rect.topright)
 
         mouse_pos = pygame.mouse.get_pos()
 
@@ -976,6 +1002,8 @@ def show_sound_setting():
         menu_click_sound.set_volume(sfx_volume * master_volume)
         door_open_sound.set_volume(sfx_volume * master_volume)
         hit_sound.set_volume(sfx_volume * master_volume)
+        sword_sound.set_volume(sfx_volume * master_volume)
+        freeze_sound.set_volume(sfx_volume * master_volume)
 
         pygame.display.flip()
 
@@ -1165,6 +1193,7 @@ while running:
             pass # Skip when invincible
         elif player.conditional_effect_active_red:
             # Trigger the red item effect (eliminate the enemy, restart the enemy production timer)
+            sword_sound.play()
             for enemy in enemy_group:
                 enemy.kill()
                 HATE_VALUE += 2
@@ -1175,6 +1204,7 @@ while running:
             player.invincible_start_time = pygame.time.get_ticks()
         elif player.conditional_effect_active_blue:
             # Trigger blue item effect (freeze enemy, time to thaw)
+            freeze_sound.play()
             for enemy in enemy_group:
                 enemy.frozen = True
             pygame.time.set_timer(pygame.USEREVENT + 2, FREEZE_DURATION, loops=1)
