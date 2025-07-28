@@ -34,7 +34,7 @@ There are some props in the maze that can be picked up, and the effects take eff
 
 <img width="36" height="40" alt="sword" src="https://github.com/user-attachments/assets/f3ca7689-0c2f-40ad-895b-92bde1e6c3f1" /> : When Qin Shi Huang collides with you, he will be killed and resurrected at the starting point.
 
-note : Note: Whenever Qin Shi Huang is killed, his speed will increase by two.
+note : Whenever Qin Shi Huang is killed, his speed will increase by two.
 
 ### Item 2 : Frozen snowflake
 
