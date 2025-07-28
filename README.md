@@ -36,9 +36,13 @@ There are some props in the maze that can be picked up, and the effects take eff
 
 note : Whenever Qin Shi Huang is killed, his speed will increase by two.
 
+![slash_animation](https://github.com/user-attachments/assets/b0ff86a8-2545-408b-b808-b1ebe643a3bc)
+
 ### Item 2 : Frozen snowflake
 
 <img width="40" height="40" alt="snowflake" src="https://github.com/user-attachments/assets/db289133-0bd5-425a-99cf-17fce3fb567b" /> : When Qin Shi Huang collides with you, he will be frozen for three seconds and cannot move during this period.
+
+![freeze_animation](https://github.com/user-attachments/assets/e4cb34fc-5bef-432b-b8c0-3cc01dd62dc5)
 
 ### Item 3 : Bolt
 
