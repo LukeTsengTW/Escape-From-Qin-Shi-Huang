@@ -7,6 +7,8 @@ player : https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.qiubiaoqing.com%2
 
 menu_bgm : shttps://www.youtube.com/shorts/h7BOGExhmGg
 playing bgm : https://opengameart.org/content/c1-bgm
+victory bgm : https://opengameart.org/content/victory-song
+gameover bgm: https://opengameart.org/content/game-over-theme-ii
 
 sound effect (door open and hit) : https://opengameart.org/content/100-cc0-sfx
 

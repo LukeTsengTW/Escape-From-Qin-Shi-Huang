@@ -53,8 +53,10 @@ font = pygame.font.Font("Cubic_11.ttf", 22)
 pygame.mixer.init()
 
 # loading bgm
-menu_music_path = "sound/menu/menu_bgm.ogg"
-playing_music_path = "sound/playing/c1.ogg"
+menu_music_path = "sound/bgm/menu/menu_bgm.ogg"
+playing_music_path = "sound/bgm/playing/c1.ogg"
+victory_music_path = "sound/bgm/victory/victory.ogg"
+gameover_music_path = "sound/bgm/gameover/gameover.ogg"
 
 # loading sound effect
 menu_click_sound = pygame.mixer.Sound("sound/sound_effect/menu/menu_selection_click.ogg")
@@ -181,25 +183,59 @@ translations = {
 
 # === Maze Map ===
 
-def generate_maze(width, height):
-    assert width % 2 == 1 and height % 2 == 1
+def generate_maze(width, height, loop_chance=0.1):
+    """
+    width: Odd Width
+    height: Odd Height
+    loop_chance: The probability of deliberately breaking through a wall near an open path (0~1). 
+                 The larger the value, the more loops there are. 0 means no loops.
+    """
     
+    assert width % 2 == 1 and height % 2 == 1
+
     maze = [[1 for _ in range(width)] for _ in range(height)]
 
-    def carve_passages_from(cx, cy):
-        directions = [(2, 0), (-2, 0), (0, 2), (0, -2)]
-        random.shuffle(directions)
-
-        for dx, dy in directions:
-            nx, ny = cx + dx, cy + dy
-            if 0 < nx < width and 0 < ny < height and maze[ny][nx] == 1:
-                maze[cy + dy//2][cx + dx//2] = 0 
-                maze[ny][nx] = 0
-                carve_passages_from(nx, ny)
-
     # Start Point
-    maze[1][1] = 0
-    carve_passages_from(1, 1)
+    start_x, start_y = 1, 1
+    maze[start_y][start_x] = 0
+
+    # Storage backtracking path
+    stack = [(start_x, start_y)]
+
+    directions = [(2,0), (-2,0), (0,2), (0,-2)]
+
+    while stack:
+        x, y = stack[-1]
+
+        neighbors = []
+        for dx, dy in directions:
+            nx, ny = x + dx, y + dy
+            if 1 <= nx < width-1 and 1 <= ny < height-1:
+                if maze[ny][nx] == 1:
+                    neighbors.append((nx, ny))
+
+        if neighbors:
+            nx, ny = random.choice(neighbors)
+
+            maze[(y + ny)//2][(x + nx)//2] = 0
+            maze[ny][nx] = 0
+
+            stack.append((nx, ny))
+
+            # Form a loop (optional) and try to break through non-traversed neighbor walls near the current point
+            if random.random() < loop_chance:
+                loop_dirs = [(2,0), (-2,0), (0,2), (0,-2)]
+                random.shuffle(loop_dirs)
+                for ldx, ldy in loop_dirs:
+                    lx, ly = x + ldx, y + ldy
+                    wall_x, wall_y = x + ldx//2, y + ldy//2
+                    if 1 <= lx < width-1 and 1 <= ly < height-1:
+                        if maze[ly][lx] == 0 and maze[wall_y][wall_x] == 1:
+                            maze[wall_y][wall_x] = 0  # Break the wall to connect two paths
+                            break  # Only one loop wall can be opened per round
+        else:
+            # No neighbors, backtracing
+            stack.pop()
 
     return maze
 
@@ -749,6 +785,11 @@ def show_pause_menu():
 
 def show_game_over_screen():
     running_game_over = True
+
+    pygame.mixer.music.stop()
+    pygame.mixer.music.load(gameover_music_path)
+    pygame.mixer.music.play()
+
     game_over_font = pygame.font.Font("Cubic_11.ttf", 48)
     button_font = pygame.font.Font("Cubic_11.ttf", 36)
     
@@ -777,6 +818,11 @@ def show_game_over_screen():
 
 def show_victory_screen():
     running_victory = True
+
+    pygame.mixer.music.stop()
+    pygame.mixer.music.load(victory_music_path)
+    pygame.mixer.music.play()
+
     victory_font = pygame.font.Font("Cubic_11.ttf", 48)
     button_font = pygame.font.Font("Cubic_11.ttf", 36)
     
@@ -906,7 +952,7 @@ def show_sound_setting():
 def difficulty_parameter_setting(level):
     global BOOST_SPEED, ENEMY_SPEED, HATE_VALUE, BOOST_DURATION, FREEZE_DURATION, ENEMY_MOVE_INTERVAL, INVISIBLE_DURATION, RED_DURATION, BLUE_DURATION, SPAWN_ITEMS_TIMES
     if level == "easy":
-        BOOST_SPEED = 5
+        BOOST_SPEED = 4
         ENEMY_SPEED = 2 + HATE_VALUE
         BOOST_DURATION = 5000
         FREEZE_DURATION = 3000
@@ -914,18 +960,18 @@ def difficulty_parameter_setting(level):
         INVISIBLE_DURATION = 5
         RED_DURATION = 7000
         BLUE_DURATION = 7000
-        SPAWN_ITEMS_TIMES = 8
+        SPAWN_ITEMS_TIMES = 5
         print("Now is easy")
     if level == "normal":
-        BOOST_SPEED = 5
+        BOOST_SPEED = 4
         ENEMY_SPEED = 3 + HATE_VALUE
-        BOOST_DURATION = 5000
+        BOOST_DURATION = 4000
         FREEZE_DURATION = 3000
         ENEMY_MOVE_INTERVAL = 200
         INVISIBLE_DURATION = 3
         RED_DURATION = 5000
         BLUE_DURATION = 5000
-        SPAWN_ITEMS_TIMES = 6
+        SPAWN_ITEMS_TIMES = 4
         print("Now is normal")
     if level == "difficult":
         BOOST_SPEED = 5
@@ -936,7 +982,7 @@ def difficulty_parameter_setting(level):
         INVISIBLE_DURATION = 3
         RED_DURATION = 3000
         BLUE_DURATION = 3000
-        SPAWN_ITEMS_TIMES = 4
+        SPAWN_ITEMS_TIMES = 3
         print("Now is difficult")
 
 def get_non_overlapping_positions():
@@ -1036,6 +1082,7 @@ while running:
         has_key = True
 
     if has_key and player.rect.colliderect(game_exit_rect):
+        door_open_sound.play()
         show_victory_screen()
         show_menu()
         continue
@@ -1065,6 +1112,8 @@ while running:
             player.invincible = True
             player.invincible_start_time = now
         else:
+            # caught by enemy
+            hit_sound.play()
             show_game_over_screen()
             show_menu()
             continue
