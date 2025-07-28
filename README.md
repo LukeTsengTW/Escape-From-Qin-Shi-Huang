@@ -68,7 +68,7 @@ This is a game based on a meme that has recently become quite popular in the Chi
 ## Support Language
 
 - zh_tw : 繁體中文
-- zh_cn : 簡體中文
+- zh_cn : 简体中文
 - en : English
 
 ## Materials used in the game
@@ -84,6 +84,10 @@ This is a game based on a meme that has recently become quite popular in the Chi
 - snowflake : https://opengameart.org/content/snow-flake
 
 - sword : https://opengameart.org/content/pixel-sword
+
+- sword_slash : https://opengameart.org/content/pixel-art-sword-slash-effect
+
+- snowflake_freeze : https://opengameart.org/content/animated-particle-effects-1
 
 - player : https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.qiubiaoqing.com%2Fimg_detail%2F788452446585226948.html&psig=AOvVaw1xkRYY4P5pTR1-j9VOhSyL&ust=1753705798018000&source=images&cd=vfe&opi=89978449&ved=0CBUQjRxqFwoTCMCImsKF3Y4DFQAAAAAdAAAAABAE
 

@@ -21,6 +21,8 @@ default_config = {
     "master_volume" : 1.0,
     "music_volume" : 1.0,
     "sfx_volume" : 1.0,
+    "current_language" : "zh_tw",
+    "first_open_game" : False,
 }
 
 def load_config():
@@ -51,11 +53,13 @@ HATE_VALUE = 0
 BOOST_DURATION = 5000
 FREEZE_DURATION = 3000
 ENEMY_MOVE_INTERVAL = 200
-INVISIBLE_DURATION = 5
+INVISIBLE_DURATION = 5000
 RED_DURATION = 5000
 BLUE_DURATION = 5000
 SPAWN_ITEMS_TIMES = 2
 DIFFICULTY = config["DIFFICULTY"]
+
+FIRST_OPEN_GAME = config["first_open_game"]
 
 master_volume, music_volume, sfx_volume = config["master_volume"], config["music_volume"], config["sfx_volume"]
 
@@ -128,14 +132,17 @@ lang, encoding = locale.getdefaultlocale()
 
 current_language = ""
 
-if lang == 'zh_TW':
-    current_language = "zh_tw"
-elif lang == 'zh_CN':
-    current_language = "zh_cn"
-elif lang.startswith('en'):
-    current_language = "en"
+if not FIRST_OPEN_GAME:
+    if lang == 'zh_TW':
+        current_language = "zh_tw"
+    elif lang == 'zh_CN':
+        current_language = "zh_cn"
+    elif lang.startswith('en'):
+        current_language = "en"
+    else:
+        current_language = "zh_tw"
 else:
-    current_language = "zh_tw"
+    current_language = config["current_language"]
 
 font = pygame.font.Font("Cubic_11.ttf", 18)
 
@@ -502,54 +509,86 @@ class Enemy(pygame.sprite.Sprite):
         self.path_index = 0
         self.move_timer = 0
         self.animation_timer = 0
-        self.animation_speed = 10  # millisecond, enemy animation speed every fps
-
+        self.animation_speed = 16  # millisecond, enemy animation speed every fps
         self.facing_right = True
 
+        self.slash_frames = [pygame.image.load(f"img/hit/slash/{i}.png").convert_alpha() for i in range(12)]
+        self.slash_current_frame = 0
+        self.attack_animation_speed = 30
+        self.is_attacking = False
+
+        self.freeze_frames = [pygame.image.load(f"img/hit/freeze/frame{i}.png").convert_alpha() for i in range(1, 63)]
+        self.freeze_current_frame = 0
+
+    def start_attack(self):
+        self.is_attacking = True
+        self.slash_current_frame = 0
+        self.attack_animation_timer = pygame.time.get_ticks()
+
     def update(self, player):
-        if self.frozen or time.time() - self.spawn_time < 1:
-            return
         
         now = pygame.time.get_ticks()
 
-        if now - self.move_timer > ENEMY_MOVE_INTERVAL:
-            self.move_timer = now
-            # Calculate the full path
-            self.path = a_star((self.rect.x, self.rect.y), player.rect.center, return_full=True)
-            self.path_index = 0
-
-        if self.path and self.path_index < len(self.path):
-            target = self.path[self.path_index]
-            step_x = 0
-            step_y = 0
-            if target[0] > self.rect.x:
-                step_x = ENEMY_SPEED
-                self.facing_right = False
-            elif target[0] < self.rect.x:
-                step_x = -ENEMY_SPEED
-                self.facing_right = True
-            if target[1] > self.rect.y:
-                step_y = ENEMY_SPEED
-            elif target[1] < self.rect.y:
-                step_y = -ENEMY_SPEED
-
-            self.rect.x += step_x
-            self.rect.y += step_y
-
-            # When the enemy approaches the target coordinates, go to the next path node
-            if abs(self.rect.x - target[0]) < ENEMY_SPEED and abs(self.rect.y - target[1]) < ENEMY_SPEED:
-                self.rect.topleft = target
-                self.path_index += 1
-
-        # Animation logics
-        if now - self.animation_timer > self.animation_speed:
-            self.animation_timer = now
-            self.current_frame = (self.current_frame + 1) % len(self.frames)
-        
-        if self.facing_right:
-            self.image = self.frames[self.current_frame]
+        if self.is_attacking:
+            if now - self.attack_animation_timer > self.attack_animation_speed:
+                self.attack_animation_timer = now
+                self.slash_current_frame += 1
+                if self.slash_current_frame >= len(self.slash_frames):
+                    self.is_attacking = False
+                    self.kill()
         else:
-            self.image = pygame.transform.flip(self.frames[self.current_frame], True, False)
+            
+            if self.frozen or time.time() - self.spawn_time < 1:
+                if self.freeze_current_frame < len(self.freeze_frames) - 1:
+                    self.freeze_current_frame += 1
+                else:
+                    self.freeze_current_frame = 0
+                return
+
+            if now - self.move_timer > ENEMY_MOVE_INTERVAL:
+                self.move_timer = now
+                # Calculate the full path
+                self.path = a_star((self.rect.x, self.rect.y), player.rect.center, return_full=True)
+                self.path_index = 0
+
+            if self.path and self.path_index < len(self.path):
+                target = self.path[self.path_index]
+                step_x = 0
+                step_y = 0
+                if target[0] > self.rect.x:
+                    step_x = ENEMY_SPEED
+                    self.facing_right = False
+                elif target[0] < self.rect.x:
+                    step_x = -ENEMY_SPEED
+                    self.facing_right = True
+                if target[1] > self.rect.y:
+                    step_y = ENEMY_SPEED
+                elif target[1] < self.rect.y:
+                    step_y = -ENEMY_SPEED
+
+                self.rect.x += step_x
+                self.rect.y += step_y
+
+                # When the enemy approaches the target coordinates, go to the next path node
+                if abs(self.rect.x - target[0]) < ENEMY_SPEED and abs(self.rect.y - target[1]) < ENEMY_SPEED:
+                    self.rect.topleft = target
+                    self.path_index += 1
+
+            # Animation logics
+            if now - self.animation_timer > self.animation_speed:
+                self.animation_timer = now
+                self.current_frame = (self.current_frame + 1) % len(self.frames)
+            
+            if self.facing_right:
+                self.image = self.frames[self.current_frame]
+            else:
+                self.image = pygame.transform.flip(self.frames[self.current_frame], True, False)
+
+    def draw(self, surface):
+        if self.is_attacking:
+            surface.blit(self.slash_frames[self.slash_current_frame], self.rect)
+        if self.frozen:
+            surface.blit(self.freeze_frames[self.freeze_current_frame], self.rect)
 
 class Item(pygame.sprite.Sprite):
     def __init__(self, image, pos, type):
@@ -586,7 +625,9 @@ def draw_text_center(text, font, color, surface, y):
     return text_rect  # Returns position to detect mouse collision
 
 def show_menu():
-    global start_time, has_key, boost_timer, spawn_enemy_after_delay, spawn_enemy_delay_start, paused, player_group, enemy_group, item_group, key_group, player, key, game_exit_rect, key_pos, exit_pos, ENEMY_SPEED, HATE_VALUE
+    global start_time, has_key, boost_timer, spawn_enemy_after_delay, spawn_enemy_delay_start, paused, player_group, enemy_group, item_group, key_group, player, key, game_exit_rect, key_pos, exit_pos, ENEMY_SPEED, HATE_VALUE, FIRST_OPEN_GAME
+    FIRST_OPEN_GAME = True
+    config["first_open_game"] = FIRST_OPEN_GAME
     kill_all_sprite()
 
     menu_image_1_rect = pygame.Rect(20, HEIGHT // 4, 194, 259)
@@ -673,7 +714,7 @@ def show_menu():
                     game_exit_rect = pygame.Rect(exit_pos[0], exit_pos[1], TILE_SIZE, TILE_SIZE)
 
                     has_key = False
-                    start_time = time.time()
+                    start_time = pygame.time.get_ticks()
                     boost_timer = 0
                     spawn_enemy_after_delay = False
                     spawn_enemy_delay_start = 0
@@ -784,6 +825,7 @@ def show_language_selection():
                         else:
                             menu_click_sound.play()
                             current_language = lang_code
+                            config["current_language"] = current_language
                             print(f"選擇語言: {translations[lang_code]['traditional_chinese' if lang_code == 'zh_tw' else 'simplified_chinese' if lang_code == 'zh_cn' else 'english']}")
 
 def show_difficulty():
@@ -845,11 +887,12 @@ def show_difficulty():
 
 def show_pause_menu():
     pause_running = True
-    pause_font = pygame.font.Font("Cubic_11.ttf", 36)
+    pause_title_font = pygame.font.Font("Cubic_11.ttf", 36)
+    pause_font = pygame.font.Font("Cubic_11.ttf", 18)
 
     while pause_running:
         screen.fill(WHITE)
-        draw_text_center(translations[current_language]["game_paused"], pause_font, BLACK, screen, HEIGHT // 4)
+        draw_text_center(translations[current_language]["game_paused"], pause_title_font, BLACK, screen, HEIGHT // 4)
 
         mouse_pos = pygame.mouse.get_pos()
 
@@ -894,8 +937,7 @@ def show_game_over_screen():
     pygame.mixer.music.load(gameover_music_path)
     pygame.mixer.music.play()
 
-    game_over_font = pygame.font.Font("Cubic_11.ttf", 48)
-    button_font = pygame.font.Font("Cubic_11.ttf", 36)
+    game_over_font = pygame.font.Font("Cubic_11.ttf", 36)
     
     while running_game_over:
         screen.fill(BLACK)
@@ -907,7 +949,7 @@ def show_game_over_screen():
         
         # Button Text and position
         button_text = translations[current_language]["back_menu"]
-        button_rect = draw_text_center(button_text, button_font, RED if pygame.Rect(WIDTH // 2 - 150, HEIGHT // 2 - 30, 300, 60).collidepoint(mouse_pos) else GRAY, screen, HEIGHT // 2)
+        button_rect = draw_text_center(button_text, font, RED if pygame.Rect(WIDTH // 2 - 150, HEIGHT // 2 - 30, 300, 60).collidepoint(mouse_pos) else GRAY, screen, HEIGHT // 2)
         
         pygame.display.flip()
         
@@ -928,8 +970,7 @@ def show_victory_screen():
     pygame.mixer.music.load(victory_music_path)
     pygame.mixer.music.play()
 
-    victory_font = pygame.font.Font("Cubic_11.ttf", 48)
-    button_font = pygame.font.Font("Cubic_11.ttf", 36)
+    victory_font = pygame.font.Font("Cubic_11.ttf", 36)
     
     while running_victory:
         screen.fill(WHITE)
@@ -941,7 +982,7 @@ def show_victory_screen():
         
         # Button Settings
         button_text = translations[current_language]["back_menu"]
-        button_rect = draw_text_center(button_text, button_font, RED if pygame.Rect(WIDTH // 2 - 150, HEIGHT // 2 - 30, 300, 60).collidepoint(mouse_pos) else GRAY,  screen, HEIGHT // 2)
+        button_rect = draw_text_center(button_text, font, RED if pygame.Rect(WIDTH // 2 - 150, HEIGHT // 2 - 30, 300, 60).collidepoint(mouse_pos) else GRAY,  screen, HEIGHT // 2)
         
         pygame.display.flip()
         
@@ -1046,10 +1087,10 @@ def show_sound_setting():
                 config["master_volume"] = master_volume
             elif dragging_slider == translations[current_language]["bgm"]:
                 music_volume = new_vol
-                config["master_volume"] = music_volume
+                config["music_volume"] = music_volume
             elif dragging_slider == translations[current_language]["se"]:
                 sfx_volume = new_vol
-                config["master_volume"] = sfx_volume
+                config["sfx_volume"] = sfx_volume
 
         pygame.mixer.music.set_volume(music_volume * master_volume)
 
@@ -1110,7 +1151,7 @@ def difficulty_parameter_setting(level):
         BOOST_DURATION = 5000
         FREEZE_DURATION = 3000
         ENEMY_MOVE_INTERVAL = 275
-        INVISIBLE_DURATION = 5
+        INVISIBLE_DURATION = 5000
         RED_DURATION = 7000
         BLUE_DURATION = 7000
         SPAWN_ITEMS_TIMES = 5
@@ -1121,7 +1162,7 @@ def difficulty_parameter_setting(level):
         BOOST_DURATION = 4000
         FREEZE_DURATION = 3000
         ENEMY_MOVE_INTERVAL = 200
-        INVISIBLE_DURATION = 3
+        INVISIBLE_DURATION = 3000
         RED_DURATION = 5000
         BLUE_DURATION = 5000
         SPAWN_ITEMS_TIMES = 4
@@ -1132,7 +1173,7 @@ def difficulty_parameter_setting(level):
         BOOST_DURATION = 4000
         FREEZE_DURATION = 3000
         ENEMY_MOVE_INTERVAL = 175
-        INVISIBLE_DURATION = 5
+        INVISIBLE_DURATION = 5000
         RED_DURATION = 3000
         BLUE_DURATION = 3000
         SPAWN_ITEMS_TIMES = 3
@@ -1168,7 +1209,7 @@ key = 0
 game_exit_rect = 0
 
 has_key = False
-start_time = time.time()
+start_time = 0.0
 boost_timer = 0
 running = True
 
@@ -1193,6 +1234,7 @@ while running:
         elif event.type == pygame.USEREVENT + 2:
             # Accept the signal of enemy of frozen
             for enemy in enemy_group:
+                enemy.freeze_current_frame = 0
                 enemy.frozen = False
     
     if paused:
@@ -1208,7 +1250,7 @@ while running:
 
     player.update(keys)
 
-    if time.time() - start_time > INVISIBLE_DURATION and len(enemy_group) == 0:
+    if pygame.time.get_ticks() - start_time > INVISIBLE_DURATION and len(enemy_group) == 0:
         enemy_group.add(Enemy((TILE_SIZE, TILE_SIZE)))
 
     for enemy in enemy_group:
@@ -1250,7 +1292,7 @@ while running:
             # Trigger the red item effect (eliminate the enemy, restart the enemy production timer)
             sword_sound.play()
             for enemy in enemy_group:
-                enemy.kill()
+                enemy.start_attack()
                 HATE_VALUE += 2
             spawn_enemy_after_delay = True
             spawn_enemy_delay_start = pygame.time.get_ticks()
@@ -1286,7 +1328,7 @@ while running:
     key_group.draw(screen)
     screen.blit(exit_image, game_exit_rect.topleft)
 
-    remain_time = max(0, int(INVISIBLE_DURATION - (time.time() - start_time)))
+    remain_time = max(0, int(INVISIBLE_DURATION - (pygame.time.get_ticks() - start_time)) / 1000)
     screen.blit(font.render(f"{translations[current_language]["invisible_time"]} {remain_time}s", True, YELLOW), (10, 10))
     if has_key:
         screen.blit(font.render(translations[current_language]["is_key_obtained"], True, GREEN), (10, 40))
@@ -1332,6 +1374,9 @@ while running:
         screen.blit(blue_icon, (10, y_next))
         # Draw the text, offset 40 pixels to the right (the image width), plus a little spacing
         screen.blit(text_surface_blue, (10 + icon_size + 5, y_next))
+
+    for enemy in enemy_group:
+        enemy.draw(screen)
 
     pygame.display.flip()
 
