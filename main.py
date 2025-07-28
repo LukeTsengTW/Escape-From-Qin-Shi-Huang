@@ -536,6 +536,10 @@ def show_menu():
     title_font = pygame.font.Font("Cubic_11.ttf", 48)
     running_menu = True
 
+    pygame.mixer.music.stop()
+    pygame.mixer.music.load(menu_music_path)
+    pygame.mixer.music.play(-1)
+
     while running_menu:
         screen.fill(WHITE)
         screen_title = translations[current_language]["title"]
@@ -577,6 +581,10 @@ def show_menu():
                 if play_rect.collidepoint(event.pos):
                     
                     menu_click_sound.play()
+
+                    pygame.mixer.music.stop()
+                    pygame.mixer.music.load(playing_music_path)
+                    pygame.mixer.music.play(-1)
 
                     player = Player((TILE_SIZE, TILE_SIZE))
                     player_group = pygame.sprite.Group(player)
