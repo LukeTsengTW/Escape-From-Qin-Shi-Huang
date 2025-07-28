@@ -44,6 +44,21 @@ note : Whenever Qin Shi Huang is killed, his speed will increase by two.
 
 <img width="27" height="40" alt="Bolt" src="https://github.com/user-attachments/assets/a2e78ebd-2393-4fc5-9405-3222482ca020" /> : The player's speed can be increased in five or four seconds, and the duration varies depending on the difficulty.
 
+### Exit Door
+
+You need to find the key to escape at this door.
+
+<img width="40" height="40" alt="exit" src="https://github.com/user-attachments/assets/fef8e293-6467-43c0-9460-771447e6718a" />
+
+### Keys
+
+There are four types of keys, and one key will be randomly generated each time you play. The type of key does not affect the gameplay.
+
+<img width="40" height="40" alt="key_4" src="https://github.com/user-attachments/assets/dfdc736b-1f9f-4114-9832-ceef9dc5522b" />
+<img width="40" height="40" alt="key_3" src="https://github.com/user-attachments/assets/6acb1c42-9058-4e77-b06c-1e1f65635262" />
+<img width="40" height="40" alt="key_2" src="https://github.com/user-attachments/assets/1ff1828c-ea58-4795-8026-b26ba459803d" />
+<img width="40" height="40" alt="key_1" src="https://github.com/user-attachments/assets/0a20e66c-818b-4558-8d99-b225dd0201e9" />
+
 ## Materials used in the game
 
 ### Images
@@ -64,7 +79,7 @@ Qin Shi Huang : https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.qiubiaoqin
 
 ### Sounds
 
-menu_bgm : shttps://www.youtube.com/shorts/h7BOGExhmGg
+menu_bgm : https://www.youtube.com/shorts/h7BOGExhmGg
 
 playing bgm : https://opengameart.org/content/c1-bgm
 
