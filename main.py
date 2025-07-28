@@ -92,6 +92,8 @@ translations = {
         "easy" : "簡單",
         "normal" : "普通",
         "difficult" : "困難",
+        "gameover" : "遊戲結束，你被秦始皇抓到了",
+        "pass" : "恭喜通關！逃離秦始皇的魔掌！",
     },
     "zh_cn": {
         "title": "逃离秦始皇",
@@ -118,6 +120,8 @@ translations = {
         "easy" : "简单",
         "normal" : "普通",
         "difficult" : "困难",
+        "gameover" : "游戏结束，你被秦始皇抓到了",
+        "pass" : "恭喜通关！逃离秦始皇的魔掌！",
     },
     "en": {
         "title": "Escape from Qin Shi Huang",
@@ -144,6 +148,8 @@ translations = {
         "easy" : "Easy",
         "normal" : "Normal",
         "difficult" : "Difficult",
+        "gameover" : "Game Over, You Failed",
+        "pass" : "Complete the game!"
     }
 }
 
@@ -449,8 +455,7 @@ def draw_text_center(text, font, color, surface, y):
     return text_rect  # Returns position to detect mouse collision
 
 def show_menu():
-    global start_time, has_key, boost_timer, spawn_enemy_after_delay, spawn_enemy_delay_start, paused, player_group, enemy_group, item_group, key_group, player, key, game_exit_rect, key_pos, exit_pos
-
+    global start_time, has_key, boost_timer, spawn_enemy_after_delay, spawn_enemy_delay_start, paused, player_group, enemy_group, item_group, key_group, player, key, game_exit_rect, key_pos, exit_pos, HATE_VALUE
     kill_all_sprite()
 
     title_font = pygame.font.Font("Cubic_11.ttf", 48)
@@ -512,6 +517,8 @@ def show_menu():
                     boost_timer = 0
                     spawn_enemy_after_delay = False
                     spawn_enemy_delay_start = 0
+
+                    HATE_VALUE = 0
 
                     paused = False
                     running_menu = False
@@ -694,6 +701,59 @@ def show_pause_menu():
                             return "main_menu"
     return "resume"
 
+def show_game_over_screen():
+    running_game_over = True
+    game_over_font = pygame.font.Font("Cubic_11.ttf", 48)
+    button_font = pygame.font.Font("Cubic_11.ttf", 36)
+    
+    while running_game_over:
+        screen.fill(BLACK)
+        
+        # Show the text of Game Over
+        draw_text_center(translations[current_language]["gameover"], game_over_font, RED, screen, HEIGHT // 3)
+        
+        mouse_pos = pygame.mouse.get_pos()
+        
+        # Button Text and position
+        button_text = translations[current_language]["back_menu"]
+        button_rect = draw_text_center(button_text, button_font, RED if pygame.Rect(WIDTH // 2 - 150, HEIGHT // 2 - 30, 300, 60).collidepoint(mouse_pos) else GRAY, screen, HEIGHT // 2)
+        
+        pygame.display.flip()
+        
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if button_rect.collidepoint(event.pos):
+                    running_game_over = False
+
+def show_victory_screen():
+    running_victory = True
+    victory_font = pygame.font.Font("Cubic_11.ttf", 48)
+    button_font = pygame.font.Font("Cubic_11.ttf", 36)
+    
+    while running_victory:
+        screen.fill(WHITE)
+        
+        # Show the title of Pass
+        draw_text_center(translations[current_language]["pass"], victory_font, GREEN, screen, HEIGHT // 3)
+        
+        mouse_pos = pygame.mouse.get_pos()
+        
+        # Button Settings
+        button_text = translations[current_language]["back_menu"]
+        button_rect = draw_text_center(button_text, button_font, RED if pygame.Rect(WIDTH // 2 - 150, HEIGHT // 2 - 30, 300, 60).collidepoint(mouse_pos) else GRAY,  screen, HEIGHT // 2)
+        
+        pygame.display.flip()
+        
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.MOUSEBUTTONDOWN and button_rect.collidepoint(event.pos):
+                running_victory = False
+
 def difficulty_parameter_setting(level):
     global BOOST_SPEED, ENEMY_SPEED, HATE_VALUE, BOOST_DURATION, FREEZE_DURATION, ENEMY_MOVE_INTERVAL, INVISIBLE_DURATION, RED_DURATION, BLUE_DURATION, SPAWN_ITEMS_TIMES
     if level == "easy":
@@ -702,7 +762,7 @@ def difficulty_parameter_setting(level):
         BOOST_DURATION = 5000
         FREEZE_DURATION = 3000
         ENEMY_MOVE_INTERVAL = 275
-        INVISIBLE_DURATION = 7
+        INVISIBLE_DURATION = 5
         RED_DURATION = 7000
         BLUE_DURATION = 7000
         SPAWN_ITEMS_TIMES = 8
@@ -713,7 +773,7 @@ def difficulty_parameter_setting(level):
         BOOST_DURATION = 5000
         FREEZE_DURATION = 3000
         ENEMY_MOVE_INTERVAL = 200
-        INVISIBLE_DURATION = 5
+        INVISIBLE_DURATION = 3
         RED_DURATION = 5000
         BLUE_DURATION = 5000
         SPAWN_ITEMS_TIMES = 6
@@ -724,7 +784,7 @@ def difficulty_parameter_setting(level):
         BOOST_DURATION = 4000
         FREEZE_DURATION = 3000
         ENEMY_MOVE_INTERVAL = 150
-        INVISIBLE_DURATION = 5
+        INVISIBLE_DURATION = 3
         RED_DURATION = 3000
         BLUE_DURATION = 3000
         SPAWN_ITEMS_TIMES = 4
@@ -827,8 +887,9 @@ while running:
         has_key = True
 
     if has_key and player.rect.colliderect(game_exit_rect):
-        print("你成功逃出迷宮！")
-        running = False
+        show_victory_screen()
+        show_menu()
+        continue
 
     # ==== Enemies collide with player ====
     enemy_hit = pygame.sprite.spritecollideany(player, enemy_group)
@@ -855,8 +916,9 @@ while running:
             player.invincible = True
             player.invincible_start_time = now
         else:
-            print("你被敵人抓住了！")
-            running = False
+            show_game_over_screen()
+            show_menu()
+            continue
 
     # ==== Draw logics ====
     for row_idx, row in enumerate(MAZE):
@@ -919,8 +981,6 @@ while running:
         screen.blit(text_surface_blue, (10 + icon_size + 5, y_next))
 
     pygame.display.flip()
-
-# GameOver
 
 pygame.quit()
 sys.exit()
