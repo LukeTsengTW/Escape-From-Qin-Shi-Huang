@@ -47,7 +47,6 @@ pygame.display.set_icon(icon)
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("逃離秦始皇 ( Escape from Qin Shi Huang )")
 clock = pygame.time.Clock()
-font = pygame.font.Font("Cubic_11.ttf", 22)
 
 # initial mixer
 pygame.mixer.init()
@@ -82,11 +81,17 @@ key_images = [
 
 current_language = "zh_tw"  # Default as traditional Chinese
 
+font = pygame.font.Font("Cubic_11.ttf", 18)
+
 translations = {
     "zh_tw": {
         "title": "逃離秦始皇",
         "play": "開始遊戲",
         "setting": "設定",
+        "how_to_play" : "如何遊玩",
+        "htp_line1" : "1. 你將扮演北極熊，在迷宮中逃離秦始皇的魔掌",
+        "htp_line2" : "2. 透過 ↑ ↓ ← → 四個方向鍵移動",
+        "htp_line3" : "3. 路途上有道具，用於干擾秦始皇",
         "exit" : "離開遊戲",
         "language": "語言",
         "sound": "音效",
@@ -119,6 +124,10 @@ translations = {
         "title": "逃离秦始皇",
         "play": "开始游戏",
         "setting": "设置",
+        "how_to_play" : "如何游玩",
+        "htp_line1" : "1. 你将扮演北极熊，在迷宫中逃离秦始皇的魔掌",
+        "htp_line2" : "2. 透过 ↑ ↓ ← → 四个方向键移动",
+        "htp_line3" : "3. 路途上有道具，用于干扰秦始皇",
         "exit" : "离开游戏",
         "language": "语言",
         "sound": "音效",
@@ -151,6 +160,10 @@ translations = {
         "title": "Escape from Qin Shi Huang",
         "play": "Play",
         "setting": "Setting",
+        "how_to_play" : "How To Play",
+        "htp_line1" : "1. You play as a polar bear and escape from the clutches of Qin Shi Huang in the maze",
+        "htp_line2" : "2. Use the ↑ ↓ ← → arrow keys to move",
+        "htp_line3" : "3. There are items on the road to interfere with Qin Shi Huang",
         "exit" : "Exit",
         "language": "Language",
         "sound": "Sound",
@@ -542,8 +555,14 @@ def show_menu():
         setting_color = RED if setting_hover else GRAY
         setting_rect = draw_text_center(setting_text, font, setting_color, screen, setting_y)
 
+        htp_text = translations[current_language]["how_to_play"]
+        htp_y = HEIGHT // 2 + 120
+        htp_hover = pygame.Rect(WIDTH // 2 - 100, htp_y - 20, 200, 40).collidepoint(mouse_pos)
+        htp_color = RED if htp_hover else GRAY
+        htp_rect = draw_text_center(htp_text, font, htp_color, screen, htp_y)
+
         exit_text = translations[current_language]["exit"]
-        exit_y = HEIGHT // 2 + 120
+        exit_y = HEIGHT // 2 + 180
         exit_hover = pygame.Rect(WIDTH // 2 - 100, exit_y - 20, 200, 40).collidepoint(mouse_pos)
         exit_color = RED if exit_hover else GRAY
         exit_rect = draw_text_center(exit_text, font, exit_color, screen, exit_y)
@@ -590,6 +609,9 @@ def show_menu():
                 elif setting_rect.collidepoint(event.pos):
                     menu_click_sound.play()
                     show_settings()
+                elif htp_rect.collidepoint(event.pos):
+                    menu_click_sound.play()
+                    show_HowToPlay()
                 elif exit_rect.collidepoint(event.pos):
                     menu_click_sound.play()
                     pygame.quit()
@@ -948,6 +970,46 @@ def show_sound_setting():
         hit_sound.set_volume(sfx_volume * master_volume)
 
         pygame.display.flip()
+
+def show_HowToPlay():
+    running_HowToPlay = True
+
+    while running_HowToPlay:
+        screen.fill(GRAY)
+
+        draw_text_center(translations[current_language]["how_to_play"], font, WHITE, screen, HEIGHT // 4)
+
+        draw_text_center(translations[current_language]["htp_line1"], font, WHITE, screen, HEIGHT // 4 + 60)
+        draw_text_center(translations[current_language]["htp_line2"], font, WHITE, screen, HEIGHT // 4 + 120)
+        draw_text_center(translations[current_language]["htp_line3"], font, WHITE, screen, HEIGHT // 4 + 180)
+
+        item_y_pos = HEIGHT // 4 + 240
+
+        screen.blit(item_images['red'], (WIDTH // 2 - 20, item_y_pos))
+        screen.blit(item_images['blue'], (WIDTH // 2 - 80, item_y_pos))
+        screen.blit(item_images['yellow'], (WIDTH // 2 + 40, item_y_pos))
+
+        mouse_pos = pygame.mouse.get_pos()
+
+        y_pos = HEIGHT // 2 + 120
+        color = RED if pygame.Rect(WIDTH // 2 - 100, y_pos - 20, 200, 40).collidepoint(mouse_pos) else WHITE
+        rect = draw_text_center(translations[current_language]["back"], font, color, screen, y_pos)
+        option_rects = [(translations[current_language]["back"], rect)]
+
+        pygame.display.flip()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                running_HowToPlay = False
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                for option, rect in option_rects:
+                    if rect.collidepoint(event.pos):
+                        if option == translations[current_language]["back"]:
+                            menu_click_sound.play()
+                            running_HowToPlay = False
 
 def difficulty_parameter_setting(level):
     global BOOST_SPEED, ENEMY_SPEED, HATE_VALUE, BOOST_DURATION, FREEZE_DURATION, ENEMY_MOVE_INTERVAL, INVISIBLE_DURATION, RED_DURATION, BLUE_DURATION, SPAWN_ITEMS_TIMES
