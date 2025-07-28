@@ -5,6 +5,7 @@ Programming Language : Python
 """
 
 from PIL import Image
+import webbrowser
 import pygame
 import json
 import os
@@ -13,6 +14,8 @@ import random
 import time
 import heapq
 import locale
+
+current_version = "Beta ver 1.1"
 
 CONFIG_FILE = "config.json"
 
@@ -647,11 +650,11 @@ def show_menu():
     config["first_open_game"] = FIRST_OPEN_GAME
     kill_all_sprite()
 
-    menu_image_1_rect = pygame.Rect(20, HEIGHT // 4, 194, 259)
+    menu_image_1_rect = pygame.Rect(20, HEIGHT // 4 + 20, 194, 259)
     menu_image_1_scaled = pygame.transform.scale(menu_image_1, (194 * 1.5, 259 * 1.5))
     menu_image_1_scaled = pygame.transform.flip(menu_image_1_scaled, True, False)
 
-    menu_image_2_rect = pygame.Rect(40, HEIGHT // 4, 408, 612)
+    menu_image_2_rect = pygame.Rect(40, HEIGHT // 4 + 20, 408, 612)
 
     title_font = pygame.font.Font("Cubic_11.ttf", 48)
     running_menu = True
@@ -664,6 +667,8 @@ def show_menu():
         screen.fill(WHITE)
         screen_title = translations[current_language]["title"]
         draw_text_center(screen_title, title_font, BLACK, screen, HEIGHT // 4)
+
+        draw_text_center(current_version, font, BLACK, screen, HEIGHT - 18)
 
         screen.blit(menu_image_1_scaled, menu_image_1_rect.topleft)
         screen.blit(menu_image_2, menu_image_2_rect.topright)
@@ -688,8 +693,14 @@ def show_menu():
         htp_color = RED if htp_hover else GRAY
         htp_rect = draw_text_center(htp_text, font, htp_color, screen, htp_y)
 
+        website_text = "github"
+        website_y = HEIGHT // 2 + 180
+        website_hover = pygame.Rect(WIDTH // 2 - 100, website_y - 20, 200, 40).collidepoint(mouse_pos)
+        website_color = RED if website_hover else GRAY
+        website_rect = draw_text_center(website_text, font, website_color, screen, website_y)
+
         exit_text = translations[current_language]["exit"]
-        exit_y = HEIGHT // 2 + 180
+        exit_y = HEIGHT // 2 + 240
         exit_hover = pygame.Rect(WIDTH // 2 - 100, exit_y - 20, 200, 40).collidepoint(mouse_pos)
         exit_color = RED if exit_hover else GRAY
         exit_rect = draw_text_center(exit_text, font, exit_color, screen, exit_y)
@@ -744,12 +755,14 @@ def show_menu():
                 elif htp_rect.collidepoint(event.pos):
                     menu_click_sound.play()
                     show_HowToPlay()
+                elif website_rect.collidepoint(event.pos):
+                    menu_click_sound.play()
+                    webbrowser.open("https://github.com/LukeTsengTW/Escape-From-Qin-Shi-Huang")
                 elif exit_rect.collidepoint(event.pos):
                     menu_click_sound.play()
                     save_config(config)
                     pygame.quit()
                     sys.exit()
-                    
 
 def show_settings():
     running_settings = True
