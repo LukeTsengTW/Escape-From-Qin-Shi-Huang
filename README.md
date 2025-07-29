@@ -71,6 +71,8 @@ You can hold down the shift key (either left or right shift) to sprint.
 
 You can sprint briefly for at least two seconds, and you need to wait for your stamina bar to recharge before you can sprint again.
 
+![sprint](https://github.com/user-attachments/assets/de057027-d2d0-480f-a3dd-fe54ea892f27)
+
 ## About the game of Escape From Qin Shi Huang
 
 This is a game based on a meme that has recently become quite popular in the Chinese community. The meme is called "Qin Shi Huang Riding a Polar Bear," and it features a nonsensical, AI-generated video. Related link:
