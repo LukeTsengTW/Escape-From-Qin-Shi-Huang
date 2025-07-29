@@ -65,6 +65,12 @@ There are four types of keys, and one key will be randomly generated each time y
 <img width="40" height="40" alt="key_2" src="https://github.com/user-attachments/assets/1ff1828c-ea58-4795-8026-b26ba459803d" />
 <img width="40" height="40" alt="key_1" src="https://github.com/user-attachments/assets/0a20e66c-818b-4558-8d99-b225dd0201e9" />
 
+### Sprint
+
+You can hold down the shift key (either left or right shift) to sprint.
+
+You can sprint briefly for at least two seconds, and you need to wait for your stamina bar to recharge before you can sprint again.
+
 ## About the game of Escape From Qin Shi Huang
 
 This is a game based on a meme that has recently become quite popular in the Chinese community. The meme is called "Qin Shi Huang Riding a Polar Bear," and it features a nonsensical, AI-generated video. Related link:
