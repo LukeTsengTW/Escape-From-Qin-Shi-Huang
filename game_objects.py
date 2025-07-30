@@ -226,28 +226,32 @@ class Player(pygame.sprite.Sprite):
 
     def draw(self, surface):
         """Draw player with boost effect if active"""
-        if self.is_boost and len(self.boost_frames) > 0:
-            surface.blit(self.boost_frames[self.boost_current_frame], self.rect)
+        # Draw the player first
+        surface.blit(self.image, (0, 0))
         
-        self.draw_stamina_bar(surface)
+        # Draw acceleration effect (if activated)
+        if self.is_boost and len(self.boost_frames) > 0:
+            surface.blit(self.boost_frames[self.boost_current_frame], (0, 0))
 
-    def draw_stamina_bar(self, surface):
-        """Draw the stamina bar"""
-        # The stamina bar is only displayed when the stamina is low or when running.
-        if self.stamina < constants.STAMINA_MAX or self.is_sprinting:
-            bar_x = self.rect.centerx - constants.STAMINA_BAR_WIDTH // 2
-            bar_y = self.rect.top - 15
+    def draw_stamina_bar_at_top(self, surface):
+        """Draw stamina bar at the top of the surface"""
+        if True:
+            bar_width = 30
+            bar_height = 4
+            
+            bar_x = (surface.get_width() // 2) - (bar_width // 2)
+            bar_y = 5
             
             # Background strips (gray)
-            bg_rect = pygame.Rect(bar_x, bar_y, constants.STAMINA_BAR_WIDTH, constants.STAMINA_BAR_HEIGHT)
+            bg_rect = pygame.Rect(bar_x, bar_y, bar_width, bar_height)
             pygame.draw.rect(surface, constants.GRAY, bg_rect)
             
             # Stamina bar (green to red gradient)
             stamina_ratio = self.stamina / constants.STAMINA_MAX
-            stamina_width = int(constants.STAMINA_BAR_WIDTH * stamina_ratio)
+            stamina_width = int(bar_width * stamina_ratio)
             
             if stamina_width > 0:
-                # Change color according to health ratio
+                # Change color according to stamina ratio
                 if stamina_ratio > 0.6:
                     color = constants.GREEN
                 elif stamina_ratio > 0.3:
@@ -255,7 +259,7 @@ class Player(pygame.sprite.Sprite):
                 else:
                     color = constants.RED
                 
-                stamina_rect = pygame.Rect(bar_x, bar_y, stamina_width, constants.STAMINA_BAR_HEIGHT)
+                stamina_rect = pygame.Rect(bar_x, bar_y, stamina_width, bar_height)
                 pygame.draw.rect(surface, color, stamina_rect)
             
             # frame
@@ -526,17 +530,21 @@ class Enemy(pygame.sprite.Sprite):
 
     def draw(self, surface):
         """Draw enemy with attack effects"""
+        # Draw the enemy first
+        surface.blit(self.image, (0, 0))
+        
         # Draw attack effects (if attacking and there is an attack frame)
         if self.attacking and len(self.attack_frames) > 0:
             # Attack effects based on direction flip
             attack_image = self.attack_frames[self.attack_current_frame]
             flipped_attack = attack_image if self.facing_right else pygame.transform.flip(attack_image, True, False)
-            surface.blit(flipped_attack, self.rect)
+            surface.blit(flipped_attack, (0, 0))
         
         # Draws a freeze effect (if frozen and has a freeze frame)
         if self.frozen and len(self.freeze_frames) > 0:
             freeze_image = self.freeze_frames[self.freeze_current_frame]
-            surface.blit(freeze_image, self.rect)
+            flipped_freeze = freeze_image if self.facing_right else pygame.transform.flip(freeze_image, True, False)
+            surface.blit(flipped_freeze, (0, 0))
 
 class Item(pygame.sprite.Sprite):
     def __init__(self, image, pos, item_type):

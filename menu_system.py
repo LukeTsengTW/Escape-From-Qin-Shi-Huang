@@ -18,8 +18,8 @@ def get_music_functions():
 
 def get_menu_functions():
     """Delay import of menu functions to avoid circular dependencies"""
-    from menu_functions import show_language_selection, show_difficulty, show_settings, show_sound_setting
-    return show_language_selection, show_difficulty, show_settings, show_sound_setting
+    from menu_functions import show_language_selection, show_difficulty, show_settings, show_sound_setting, show_resolution_selection
+    return show_language_selection, show_difficulty, show_settings, show_sound_setting, show_resolution_selection
 
 def draw_text_center(text, font, color, surface, y):
     if font is None:
@@ -76,7 +76,7 @@ class BaseMenuHandler:
         start_y = constants.HEIGHT // 2 if not hasattr(self, 'start_y') else self.start_y
         
         for i, option in enumerate(self.options):
-            y_pos = start_y + i * 60
+            y_pos = start_y + i * 50
             color = constants.RED if pygame.Rect(constants.WIDTH // 2 - 100, y_pos - 25, 200, 50).collidepoint(mouse_pos) else (constants.GRAY if self.background_color == constants.WHITE else constants.WHITE)
             rect = draw_text_center(option.text, self.font, color, screen, y_pos)
             option_rects.append((option, rect))
@@ -128,21 +128,135 @@ class BaseMenuHandler:
         """Override for additional drawing"""
         pass
 
+class FullscreenMenuHandler:
+    """Fullscreen toggle handler"""
+    
+    def __init__(self):
+        self.config = load_config()
+        self.screen = screen
+        
+    def toggle_fullscreen(self):
+        """Toggle between fullscreen and windowed mode"""
+        # Toggle full screen mode
+        self.config["fullscreen"] = not self.config["fullscreen"]
+        save_config(self.config)
+        
+        # Apply a new display mode
+        try:
+            if self.config["fullscreen"]:
+                # Switch to full screen mode
+                pygame.display.set_mode((self.config["resolution_width"], self.config["resolution_height"]), pygame.FULLSCREEN)
+            else:
+                # Switch to windowed mode
+                pygame.display.set_mode((self.config["resolution_width"], self.config["resolution_height"]))
+            
+            return True
+        except pygame.error as e:
+            print(f"Failed to toggle fullscreen: {e}")
+            # If it fails, restore the original settings
+            self.config["fullscreen"] = not self.config["fullscreen"]
+            save_config(self.config)
+            return False
+    
+    def get_current_mode_text(self):
+        """Get text for current display mode option"""
+        if self.config["fullscreen"]:
+            return translations[current_language]["switch_to_windowed"]
+        else:
+            return translations[current_language]["switch_to_fullscreen"]
+
 class SettingsMenuHandler(BaseMenuHandler):
     """Handler for settings menu"""
+    
+    def __init__(self, title, options):
+        super().__init__(title, options)
+        self.fullscreen_handler = FullscreenMenuHandler()
+    
+    def get_dynamic_options(self):
+        """Get options with dynamic text for fullscreen toggle"""
+        return [
+            MenuOption(translations[current_language]["language"], "language"),
+            MenuOption(translations[current_language]["sound"], "sound"),
+            MenuOption(translations[current_language]["difficulty"], "difficulty"),
+            MenuOption(translations[current_language]["resolution"], "resolution"),
+            MenuOption(self.fullscreen_handler.get_current_mode_text(), "fullscreen"),
+            MenuOption(translations[current_language]["back"], "back")
+        ]
+    
+    def get_option_rect(self, i):
+        """Get the rect for a specific option"""
+        start_y = constants.HEIGHT // 2 if not hasattr(self, 'start_y') else self.start_y
+        y_pos = start_y + i * 50
+        return pygame.Rect(constants.WIDTH // 2 - 100, y_pos - 25, 200, 50)
+    
+    def run(self):
+        """Override run method to use dynamic options"""
+        global config
+        self.running = True
+        
+        while self.running:
+            # Update options to reflect current status
+            self.options = self.get_dynamic_options()
+            
+            # Draw the background and title
+            self.draw_background()
+            
+            # Get the mouse position
+            mouse_pos = pygame.mouse.get_pos()
+            
+            # Drawing Options
+            option_rects = self.draw_options(mouse_pos)
+            
+            # Additional drawing
+            self.additional_drawing()
+            
+            pygame.display.flip()
+            
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    save_config(config)
+                    pygame.quit()
+                    sys.exit()
+                elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                    self.running = False
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    for option, rect in option_rects:
+                        if rect.collidepoint(event.pos):
+                            result = self.handle_click(option)
+                            if result:
+                                return result
+                            break
+        return None
+    
     def handle_click(self, option):
+        """Handle settings menu selection with fullscreen support"""
         menu_click_sound.play()
         if option.action == "back":
             self.running = False
         elif option.action == "language":
-            show_language_selection, show_difficulty, show_settings, show_sound_setting = get_menu_functions()
+            show_language_selection, show_difficulty, show_settings, show_sound_setting, show_resolution_selection = get_menu_functions()
             show_language_selection()
         elif option.action == "difficulty":
-            show_language_selection, show_difficulty, show_settings, show_sound_setting = get_menu_functions()
+            show_language_selection, show_difficulty, show_settings, show_sound_setting, show_resolution_selection = get_menu_functions()
             show_difficulty()
         elif option.action == "sound":
-            show_language_selection, show_difficulty, show_settings, show_sound_setting = get_menu_functions()
+            show_language_selection, show_difficulty, show_settings, show_sound_setting, show_resolution_selection = get_menu_functions()
             show_sound_setting()
+        elif option.action == "resolution":
+            show_language_selection, show_difficulty, show_settings, show_sound_setting, show_resolution_selection = get_menu_functions()
+            show_resolution_selection()
+        elif option.action == "fullscreen":
+            if self.fullscreen_handler.toggle_fullscreen():
+                import menu_functions
+                import renderer
+                import game_logic
+                new_screen = pygame.display.get_surface()
+                menu_functions.screen = new_screen
+                renderer.screen = new_screen
+                game_logic.screen = new_screen
+            else:
+                print("Failed to toggle fullscreen mode")
+        return None
 
 class LanguageMenuHandler(BaseMenuHandler):
     """Handler for language selection menu"""
@@ -196,7 +310,7 @@ class PauseMenuHandler(BaseMenuHandler):
             self.running = False
             return "resume"
         elif option.action == "setting":
-            show_language_selection, show_difficulty, show_settings, show_sound_setting = get_menu_functions()
+            show_language_selection, show_difficulty, show_settings, show_sound_setting, show_resolution_selection = get_menu_functions()
             show_settings()
         elif option.action == "back_menu":
             self.running = False
@@ -405,3 +519,65 @@ class SoundSettingHandler:
                         new_vol = max(0, min(1, relative_x / self.slider_width))
                         self.update_volume(vol_type, new_vol)
                         break
+
+class ResolutionMenuHandler(BaseMenuHandler):
+    """Resolution setting menu handler"""
+    
+    def __init__(self, title, options):
+        super().__init__(title, options)
+        self.config = load_config()
+        self.screen = screen
+        
+    def handle_click(self, option):
+        """Handle resolution selection"""
+        menu_click_sound.play()
+        if option.action == "back":
+            self.running = False
+            return None
+        
+        # Parsing resolution string
+        if "x" in option.action:
+            try:
+                width, height = map(int, option.action.split("x"))
+                self.config["resolution_width"] = width
+                self.config["resolution_height"] = height
+                save_config(self.config)
+                
+                # Display a reboot prompt
+                self.show_restart_message()
+                self.running = False
+                return None
+            except ValueError:
+                print(f"Invalid resolution format: {option.action}")
+        
+        return None
+    
+    def show_restart_message(self):
+        """Show restart required message"""
+        if screen is None:
+            return
+            
+        # Create a semi-transparent overlay
+        overlay = pygame.Surface((constants.WIDTH, constants.HEIGHT))
+        overlay.set_alpha(200)
+        overlay.fill(constants.BLACK)
+        screen.blit(overlay, (0, 0))
+        
+        # Display message
+        message = translations[current_language]["resolution_restart_note"]
+        text_surface = self.font.render(message, True, constants.WHITE)
+        text_rect = text_surface.get_rect(center=(constants.WIDTH//2, constants.HEIGHT//2))
+        screen.blit(text_surface, text_rect)
+        
+        pygame.display.flip()
+        pygame.time.wait(2000)
+    
+    def additional_drawing(self):
+        """Override to show current resolution"""
+        # Display current resolution
+        current_res = f"{self.config['resolution_width']}x{self.config['resolution_height']}"
+        current_text = f"{translations[current_language]['current_resolution']} {current_res}"
+        text_surface = self.font.render(current_text, True, constants.BLACK)
+        text_rect = text_surface.get_rect(center=(constants.WIDTH//2, constants.HEIGHT//4 + 60))
+        screen.blit(text_surface, text_rect)
+

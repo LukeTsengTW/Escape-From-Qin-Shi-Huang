@@ -1,8 +1,11 @@
 {
-    "DIFFICULTY": "difficult",
+    "DIFFICULTY": "normal",
     "master_volume": 1.0,
-    "music_volume": 0.10666666666666667,
+    "music_volume": 0.06333333333333334,
     "sfx_volume": 0.3,
     "current_language": "zh_tw",
-    "first_open_game": true
+    "first_open_game": true,
+    "resolution_width": 1600,
+    "resolution_height": 900,
+    "fullscreen": false
 }

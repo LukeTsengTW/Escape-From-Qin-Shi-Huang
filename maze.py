@@ -63,7 +63,7 @@ def generate_maze(width, height, loop_chance=0.1):
     return maze
 
 # random generate the maze map
-MAZE = generate_maze(MAZE_COLS+1, MAZE_ROWS-1)
+MAZE = generate_maze(MAZE_COLS, MAZE_ROWS)
 
 walls = [pygame.Rect(col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE)
           for row, line in enumerate(MAZE)

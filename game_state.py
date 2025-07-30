@@ -2,19 +2,21 @@ import pygame
 import constants
 from maze import random_walkable_position, get_non_overlapping_positions
 from difficulty import difficulty_parameter_setting
+from camera import Camera
 
 def get_game_objects():
     from game_objects import Player, Item, Key
     return Player, Item, Key
 
 def get_assets():
-    """延遲導入資源，確保已經載入"""
     from assets import item_images, key_images
     return item_images, key_images
 
 class GameState:
     """Game state manager class"""
     def __init__(self):
+        # Initialize the camera
+        self.camera = Camera(constants.WIDTH, constants.HEIGHT)
         self.reset()
     
     def reset(self):
@@ -53,6 +55,14 @@ class GameState:
         
         # Reset hate value
         constants.HATE_VALUE = 0
+        
+        # Reset camera position
+        if hasattr(self, 'camera'):
+            self.camera.update(self.player)
+    
+    def update_camera(self):
+        """Update camera position"""
+        self.camera.update(self.player)
     
     def pause_game(self):
         """Pause the game and start tracking pause time"""

@@ -3,9 +3,9 @@ from config import load_config
 config = load_config()
 
 # Game window settings
-WIDTH, HEIGHT = 800, 800
+WIDTH, HEIGHT = config["resolution_width"], config["resolution_height"]
 TILE_SIZE = 40
-MAZE_COLS, MAZE_ROWS = WIDTH // TILE_SIZE, HEIGHT // TILE_SIZE
+MAZE_COLS, MAZE_ROWS = 31, 31
 
 # Game mechanics
 PLAYER_SPEED = 2
@@ -21,9 +21,9 @@ BLUE_DURATION = 10000
 INVISIBLE_DURATION = 10000
 
 # Stamina System
-SPRINT_SPEED_BONUS = 1
+SPRINT_SPEED_BONUS = 2
 STAMINA_MAX = 2000
-STAMINA_RECOVERY_RATE = 0.75
+STAMINA_RECOVERY_RATE = 0.8
 STAMINA_BAR_WIDTH = 60
 STAMINA_BAR_HEIGHT = 8
 
@@ -44,6 +44,17 @@ GREEN = (0, 255, 0)
 PURPLE = (128, 0, 128)
 ORANGE = (255, 165, 0)
 GRAY = (128, 128, 128)
+
+# Resolution options
+RESOLUTION_OPTIONS = [
+    (800, 600),   # 4:3
+    (1024, 768),  # 4:3
+    (1280, 720),  # 16:9 HD
+    (1366, 768),  # 16:9
+    (1600, 900),  # 16:9
+    (1920, 1080), # 16:9 FHD
+    (2560, 1440), # 16:9 QHD
+]
 
 # Version
 current_version = "Beta v1.2"

@@ -75,13 +75,7 @@ def show_menu():
                         break
 
 def show_settings():
-    options = [
-        MenuOption(translations[current_language]["language"], "language"),
-        MenuOption(translations[current_language]["sound"], "sound"),
-        MenuOption(translations[current_language]["difficulty"], "difficulty"),
-        MenuOption(translations[current_language]["back"], "back")
-    ]
-    handler = SettingsMenuHandler(translations[current_language]["setting"], options)
+    handler = SettingsMenuHandler(translations[current_language]["setting"], [])
     handler.run()
 
 def show_language_selection():
@@ -102,6 +96,18 @@ def show_difficulty():
         MenuOption(translations[current_language]["back"], "back")
     ]
     handler = DifficultyMenuHandler(translations[current_language]["difficulty_setting"], options)
+    handler.run()
+
+def show_resolution_selection():
+    options = []
+    
+    for width, height in constants.RESOLUTION_OPTIONS:
+        resolution_text = f"{width}x{height}"
+        options.append(MenuOption(resolution_text, resolution_text))
+    
+    options.append(MenuOption(translations[current_language]["back"], "back"))
+    
+    handler = ResolutionMenuHandler(translations[current_language]["resolution_setting"], options)
     handler.run()
 
 def show_pause_menu():
@@ -150,17 +156,29 @@ def draw_menu_background():
     
     # Draw background images (only if loaded)
     if menu_image_1 and menu_image_2:
-        menu_image_1_rect = pygame.Rect(20, constants.HEIGHT // 4 + 20, 194, 259)
-        menu_image_1_scaled = pygame.transform.scale(menu_image_1, (194 * 1.5, 259 * 1.5))
-        menu_image_1_scaled = pygame.transform.flip(menu_image_1_scaled, True, False)
-        menu_image_2_rect = pygame.Rect(40, constants.HEIGHT // 4 + 20, 408, 612)
+        left_margin = constants.WIDTH * 0.05  # The left margin is 5% of the screen width
+        image1_width = 194 * 1.5
+        image1_height = 259 * 1.5
+        image1_x = left_margin
+        image1_y = constants.HEIGHT // 4 + 20
         
-        screen.blit(menu_image_1_scaled, menu_image_1_rect.topleft)
-        screen.blit(menu_image_2, menu_image_2_rect.topright)
+        menu_image_1_scaled = pygame.transform.scale(menu_image_1, (int(image1_width), int(image1_height)))
+        menu_image_1_scaled = pygame.transform.flip(menu_image_1_scaled, True, False)
+        
+        right_margin = constants.WIDTH * 0.03  # The right margin is 5% of the screen width
+        image2_width = 408 * 0.8  # Slightly scaled down to accommodate different resolutions
+        image2_height = 612 * 0.8
+        image2_x = constants.WIDTH - right_margin - image2_width
+        image2_y = constants.HEIGHT // 4 + 20
+        
+        menu_image_2_scaled = pygame.transform.scale(menu_image_2, (int(image2_width), int(image2_height)))
+        
+        screen.blit(menu_image_1_scaled, (image1_x, image1_y))
+        screen.blit(menu_image_2_scaled, (image2_x, image2_y))
 
 def handle_menu_action(action):
     global config
-    """Handle menu button actions - 不在這裡切換音樂"""
+    """Handle menu button actions"""
     config = load_config()
     menu_click_sound.play()
     
