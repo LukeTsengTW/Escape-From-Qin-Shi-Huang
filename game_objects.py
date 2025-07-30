@@ -95,6 +95,13 @@ class Player(pygame.sprite.Sprite):
         grid_x = (center_x // constants.TILE_SIZE) * constants.TILE_SIZE
         grid_y = (center_y // constants.TILE_SIZE) * constants.TILE_SIZE
         return (grid_x, grid_y)
+    
+    def increase_permanent_speed(self):
+        """Permanently increases the player's base speed"""
+        self.base_speed += 0.5
+        if not self.is_boost:
+            self.speed = self.base_speed
+        print(f"Player base speed increased to: {self.base_speed}")
 
     def handle_movement(self, keys):
         """Handle player movement with collision detection"""

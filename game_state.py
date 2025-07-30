@@ -23,6 +23,10 @@ class GameState:
         
         # Sprite groups
         self.player = Player((constants.TILE_SIZE, constants.TILE_SIZE))
+
+        self.player.base_speed = constants.PLAYER_SPEED
+        self.player.speed = constants.PLAYER_SPEED
+
         self.player_group = pygame.sprite.Group(self.player)
         self.enemy_group = pygame.sprite.Group()
         self.item_group = pygame.sprite.Group()

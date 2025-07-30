@@ -48,6 +48,8 @@ note : Whenever Qin Shi Huang is killed, his speed will increase by two.
 
 <img width="27" height="40" alt="Bolt" src="https://github.com/user-attachments/assets/a2e78ebd-2393-4fc5-9405-3222482ca020" /> : The player's speed can be increased in five or four seconds, and the duration varies depending on the difficulty.
 
+When you get the Bolt item, it permanently increases your speed slightly (+0.5), but it resets when you start a new game.
+
 ![boost_animation](https://github.com/user-attachments/assets/2a894e25-ec91-43d9-a8ca-f38c46cdc18f)
 
 ### Exit Door

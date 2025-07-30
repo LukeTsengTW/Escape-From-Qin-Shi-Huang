@@ -8,9 +8,9 @@ class DifficultyConfig:
         "easy": {
             "boost_speed": 4,
             "enemy_speed_base": 2,
-            "boost_duration": 5000,
+            "boost_duration": 3000,
             "freeze_duration": 3000,
-            "invisible_duration": 5000,
+            "invisible_duration": 6000,
             "red_duration": 7000,
             "blue_duration": 7000,
             "spawn_items_times": 5,
@@ -19,7 +19,7 @@ class DifficultyConfig:
         "normal": {
             "boost_speed": 4,
             "enemy_speed_base": 3,
-            "boost_duration": 4000,
+            "boost_duration": 2500,
             "freeze_duration": 3000,
             "invisible_duration": 3000,
             "red_duration": 5000,
@@ -30,9 +30,9 @@ class DifficultyConfig:
         "difficult": {
             "boost_speed": 5,
             "enemy_speed_base": 4,
-            "boost_duration": 4000,
+            "boost_duration": 2000,
             "freeze_duration": 3000,
-            "invisible_duration": 5000,
+            "invisible_duration": 6000,
             "red_duration": 3000,
             "blue_duration": 3000,
             "spawn_items_times": 3,

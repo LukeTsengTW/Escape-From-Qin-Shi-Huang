@@ -117,6 +117,8 @@ def handle_item_pickup():
             game_state.player.conditional_effect_active_blue = True
             game_state.player.conditional_effect_start_time_blue = game_state.get_adjusted_time()
         elif item.type == 'yellow':
+            game_state.player.increase_permanent_speed()
+
             game_state.player.is_boost = True
             game_state.player.speed = constants.BOOST_SPEED
             game_state.boost_timer = game_state.get_adjusted_time()
@@ -126,7 +128,7 @@ def handle_speed_boost():
     game_state = get_game_state()
     if game_state.get_adjusted_time() - game_state.boost_timer > constants.BOOST_DURATION:
         game_state.player.is_boost = False
-        game_state.player.speed = constants.PLAYER_SPEED
+        game_state.player.speed = game_state.player.base_speed
 
 def handle_key_collection():
     """Handle key collection"""
