@@ -129,6 +129,9 @@ game_state = GameState()
 
 def initialize_game_state():
     """Initialize all game state variables - updated version"""
+    from maze import regenerate_maze, update_walls
+    regenerate_maze()
+    update_walls()
     game_state.reset()
     game_state.initialize_level()
 

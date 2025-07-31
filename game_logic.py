@@ -136,6 +136,10 @@ def handle_key_collection():
     collected_keys = pygame.sprite.spritecollide(game_state.player, game_state.key_group, True)
     if collected_keys:
         game_state.has_key = True
+        constants.HATE_VALUE += 1
+        new_enemy_speed = constants.ENEMY_SPEED + constants.HATE_VALUE
+        for enemy in game_state.enemy_group:
+            enemy.speed = new_enemy_speed
 
 def check_victory_condition():
     """Check if player has won"""
@@ -193,7 +197,12 @@ def handle_enemy_collision():
         elif game_state.player.conditional_effect_active_blue:
             # Blue item effect - Freeze
             freeze_sound.play()
+
+            constants.HATE_VALUE += 1
+            
+            new_enemy_speed = constants.ENEMY_SPEED + constants.HATE_VALUE
             for enemy in game_state.enemy_group:
+                enemy.speed = new_enemy_speed
                 if not enemy.dying:
                     enemy.frozen = True
             pygame.time.set_timer(pygame.USEREVENT + 2, constants.FREEZE_DURATION, loops=1)

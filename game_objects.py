@@ -3,11 +3,16 @@ import time
 import random
 import os
 import constants
-from maze import walls, a_star, is_path
+from maze import a_star, is_path
 
 def get_game_state():
     from game_state import game_state
     return game_state
+
+def get_maze_walls():
+    """Get current maze walls"""
+    from maze import walls
+    return walls
 
 def load_frames_safely(base_path, count, start_from=1):
     """Safely load animation frames, skip if the file does not exist"""
@@ -133,6 +138,7 @@ class Player(pygame.sprite.Sprite):
 
         # Handle horizontal collision
         if dx != 0:
+            walls = get_maze_walls()
             new_rect = self.collision_rect.move(dx, 0)
             for wall in walls:
                 if new_rect.colliderect(wall):
@@ -145,6 +151,7 @@ class Player(pygame.sprite.Sprite):
 
         # Handle vertical collision
         if dy != 0:
+            walls = get_maze_walls()
             new_rect = self.collision_rect.move(0, dy)
             for wall in walls:
                 if new_rect.colliderect(wall):
@@ -509,6 +516,7 @@ class Enemy(pygame.sprite.Sprite):
             new_y = self.rect.y + dy
             
             # Simple wall detection
+            walls = get_maze_walls()
             test_rect = pygame.Rect(new_x, new_y, self.rect.width, self.rect.height)
             collision = False
             for wall in walls:

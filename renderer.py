@@ -1,7 +1,6 @@
 import pygame
 import constants
 from translations import translations, current_language
-from maze import MAZE
 
 # Global variable to be set by main.py
 screen = None
@@ -20,6 +19,9 @@ def draw_game_screen():
         
     game_state = get_game_state()
     font, item_images, exit_image = get_assets()
+    
+    # Get current maze
+    from maze import MAZE
 
     """Draw all game elements with camera offset"""
     # Update camera

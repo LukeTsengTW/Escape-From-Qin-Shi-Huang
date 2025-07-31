@@ -1,9 +1,3 @@
-"""
-Game Name : Escape from Qin Shi Huang
-Author : LukeTseng
-Programming Language : Python
-"""
-
 import pygame
 import constants
 
