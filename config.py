@@ -13,6 +13,10 @@ default_config = {
     "resolution_width" : 1600,
     "resolution_height" : 900,
     "fullscreen" : False,
+    "game_mode" : "random",  # "level" or "random"
+    "current_level" : 1,  # Current level for level mode
+    "unlocked_levels" : [1],  # List of unlocked levels (start with level 1)
+    "completed_levels" : [],  # List of completed levels
 }
 
 def load_config():

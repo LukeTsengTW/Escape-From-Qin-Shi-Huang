@@ -23,6 +23,10 @@ class GameState:
         """Reset all game state variables"""
         Player, Item, Key = get_game_objects()
         
+        # Store current game mode and level before reset (if they exist)
+        current_game_mode = getattr(self, 'game_mode', "random")
+        current_level = getattr(self, 'current_level', 1)
+        
         # Sprite groups
         self.player = Player((constants.TILE_SIZE, constants.TILE_SIZE))
 
@@ -48,6 +52,10 @@ class GameState:
         self.spawn_enemy_after_delay = False
         self.spawn_enemy_delay_start = 0
         self.paused = False
+        
+        # Game mode and level info (preserve existing values)
+        self.game_mode = current_game_mode
+        self.current_level = current_level
         
         # Pause time tracking
         self.total_pause_time = 0
@@ -93,7 +101,6 @@ class GameState:
     def initialize_level(self):
         """Initialize level-specific objects"""
         # Set difficulty and spawn items
-
         from config import load_config
         config = load_config()
         difficulty_parameter_setting(config["DIFFICULTY"])
@@ -103,10 +110,34 @@ class GameState:
         Player, Item, Key = get_game_objects()
         item_images, key_images = get_assets()
         
-        self.key_pos, self.exit_pos = get_non_overlapping_positions()
+        # Use fixed positions for level mode, random for random mode
+        if self.game_mode == "level":
+            from maze import get_level_positions
+            self.key_pos, self.exit_pos = get_level_positions(self.current_level)
+        else:
+            self.key_pos, self.exit_pos = get_non_overlapping_positions()
+            
         self.key = Key(key_images, self.key_pos)
         self.key_group.add(self.key)
         self.game_exit_rect = pygame.Rect(self.exit_pos[0], self.exit_pos[1], constants.TILE_SIZE, constants.TILE_SIZE)
+        
+        # No immediate enemy spawning for any level - let game_logic.py handle it after INVISIBLE_DURATION
+    
+    def spawn_boss_enemies(self):
+        """Spawn 2 enemies for boss level (Level 5)"""
+        from game_objects import Enemy
+        
+        # Spawn first enemy at a safe distance from player (not at starting position)
+        enemy1 = Enemy((5 * constants.TILE_SIZE, 5 * constants.TILE_SIZE))  # Away from player spawn
+        enemy1.speed = constants.ENEMY_SPEED + constants.HATE_VALUE
+        self.enemy_group.add(enemy1)
+        
+        # Spawn second enemy at opposite corner
+        enemy2 = Enemy((39 * constants.TILE_SIZE, 39 * constants.TILE_SIZE))  # Boss level is 41x41
+        enemy2.speed = constants.ENEMY_SPEED + constants.HATE_VALUE
+        self.enemy_group.add(enemy2)
+        
+        print("Boss level: 2 enemies spawned!")
     
     def spawn_items(self):
         """Spawn items on the map"""
@@ -115,7 +146,7 @@ class GameState:
         
         for _ in range(constants.SPAWN_ITEMS_TIMES):
             for item_type in ['red', 'yellow', 'blue']:
-                pos = random_walkable_position()
+                pos = random_walkable_position(self.current_level)
                 self.item_group.add(Item(item_images[item_type], pos, item_type))
     
     def kill_all_sprites(self):
@@ -127,11 +158,27 @@ class GameState:
 
 game_state = GameState()
 
-def initialize_game_state():
+def initialize_game_state(regenerate_maze_flag=True, game_mode="random", level_number=1):
     """Initialize all game state variables - updated version"""
-    from maze import regenerate_maze, update_walls
-    regenerate_maze()
-    update_walls()
+    if game_mode == "level":
+        # Level mode - load specific level maze
+        from maze import load_level_maze, update_walls
+        load_level_maze(level_number)
+        update_walls()
+    elif regenerate_maze_flag:
+        # Random mode - generate new maze
+        from maze import regenerate_maze, update_walls
+        regenerate_maze()
+        update_walls()
+    else:
+        # If maze is already loaded, just update walls
+        from maze import update_walls
+        update_walls()
+    
+    # Set game mode and level info
+    game_state.game_mode = game_mode
+    game_state.current_level = level_number
+    
     game_state.reset()
     game_state.initialize_level()
 

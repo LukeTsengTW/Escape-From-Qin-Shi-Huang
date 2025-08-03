@@ -581,3 +581,68 @@ class ResolutionMenuHandler(BaseMenuHandler):
         text_rect = text_surface.get_rect(center=(constants.WIDTH//2, constants.HEIGHT//4 + 60))
         screen.blit(text_surface, text_rect)
 
+
+class LevelSelectionMenuHandler(BaseMenuHandler):
+    """Handler for level selection menu"""
+    def __init__(self):
+        self.config = load_config()
+        unlocked_levels = self.config.get("unlocked_levels", [1])
+        completed_levels = self.config.get("completed_levels", [])
+        
+        options = []
+        # Add levels (showing up to 10 levels for now)
+        for i in range(1, 6): 
+            if i in unlocked_levels:
+                if i in completed_levels:
+                    level_text = f"{translations[current_language]['level']} {i} ✓ {translations[current_language]['completed']}"
+                else:
+                    level_text = f"{translations[current_language]['level']} {i}"
+                options.append(MenuOption(level_text, f"level_{i}"))
+            else:
+                level_text = f"{translations[current_language]['level']} {i} 🔒 {translations[current_language]['locked']}"
+                options.append(MenuOption(level_text, f"locked_{i}"))
+        
+        options.append(MenuOption(translations[current_language]["back"], "back"))
+        super().__init__(translations[current_language]["select_level"], options)
+        self.start_y = constants.HEIGHT // 2 - 150
+    
+    def handle_click(self, option):
+        menu_click_sound.play()
+        if option.action == "back":
+            self.running = False
+            return None
+        elif option.action.startswith("level_"):
+            level_num = int(option.action.split("_")[1])
+            self.running = False
+            return level_num
+        elif option.action.startswith("locked_"):
+            print("This Level is not unlock.")
+            return None
+        return None
+
+
+class GameModeMenuHandler(BaseMenuHandler):
+    """Handler for game mode selection menu"""
+    def __init__(self):
+        title = translations[current_language]["select_mode"]
+        options = [
+            MenuOption(translations[current_language]["level_mode"], "level_mode"),
+            MenuOption(translations[current_language]["random_mode"], "random_mode"),
+            MenuOption(translations[current_language]["back"], "back")
+        ]
+        super().__init__(title, options, constants.WHITE)
+        self.start_y = constants.HEIGHT // 2
+    
+    def handle_click(self, option):
+        menu_click_sound.play()
+        if option.action == "back":
+            self.running = False
+            return None
+        elif option.action == "level_mode":
+            self.running = False
+            return "level_mode"
+        elif option.action == "random_mode":
+            self.running = False
+            return "random_mode"
+        return None
+

@@ -41,8 +41,9 @@ def main_game_loop():
             elif event.type == pygame.USEREVENT + 2:
                 # Unfreeze enemies
                 for enemy in game_state.enemy_group:
-                    enemy.freeze_current_frame = 0
-                    enemy.frozen = False
+                    if enemy.frozen:
+                        enemy.freeze_current_frame = 0
+                        enemy.frozen = False
         
         if game_state.paused:
             action = show_pause_menu()
@@ -60,11 +61,26 @@ def main_game_loop():
 
         game_state.player.update(keys)
 
-        # Spawn enemy after invisible duration (using adjusted time)
-        if game_state.get_elapsed_time() > constants.INVISIBLE_DURATION and len(game_state.enemy_group) == 0:
-            new_enemy = Enemy((constants.TILE_SIZE, constants.TILE_SIZE))
-            new_enemy.speed = constants.ENEMY_SPEED + constants.HATE_VALUE
-            game_state.enemy_group.add(Enemy((constants.TILE_SIZE, constants.TILE_SIZE)))
+        # Handle enemy spawning based on game mode
+        if game_state.game_mode == "level" and game_state.current_level == 5:
+            # Boss level (Level 5) - maintain 2 enemies max, but wait for invisible duration
+            alive_enemies = [enemy for enemy in game_state.enemy_group if not enemy.dying]
+            if len(alive_enemies) == 0 and game_state.get_elapsed_time() > constants.INVISIBLE_DURATION:
+                # Respawn both enemies for boss level
+                game_state.spawn_boss_enemies()
+        elif game_state.game_mode == "level":
+            # Standard level mode - spawn single enemy after invisible duration  
+            alive_enemies = [enemy for enemy in game_state.enemy_group if not enemy.dying]
+            if len(alive_enemies) == 0 and game_state.get_elapsed_time() > constants.INVISIBLE_DURATION:
+                new_enemy = Enemy((constants.TILE_SIZE, constants.TILE_SIZE))
+                new_enemy.speed = constants.ENEMY_SPEED + constants.HATE_VALUE
+                game_state.enemy_group.add(new_enemy)
+        else:
+            # Random mode - spawn single enemy after invisible duration
+            if game_state.get_elapsed_time() > constants.INVISIBLE_DURATION and len(game_state.enemy_group) == 0:
+                new_enemy = Enemy((constants.TILE_SIZE, constants.TILE_SIZE))
+                new_enemy.speed = constants.ENEMY_SPEED + constants.HATE_VALUE
+                game_state.enemy_group.add(new_enemy)
 
         # Update enemies and remove completed death animations
         enemies_to_remove = []
@@ -75,13 +91,35 @@ def main_game_loop():
             if enemy.dying and enemy.is_death_animation_complete():
                 enemies_to_remove.append(enemy)
         
-        # Remove enemies whose death animations have completed and respawn new enemies
+        # Remove enemies whose death animations have completed
         for enemy in enemies_to_remove:
             enemy.kill()
-            # New enemies spawn at the starting point
-            new_enemy = Enemy((constants.TILE_SIZE, constants.TILE_SIZE))
-            new_enemy.speed = constants.ENEMY_SPEED + constants.HATE_VALUE
-            game_state.enemy_group.add(new_enemy)
+            
+        # Handle enemy respawning based on game mode
+        if enemies_to_remove:
+            if game_state.game_mode == "random":
+                # Random mode - respawn immediately
+                for _ in enemies_to_remove:
+                    new_enemy = Enemy((constants.TILE_SIZE, constants.TILE_SIZE))
+                    new_enemy.speed = constants.ENEMY_SPEED + constants.HATE_VALUE
+                    game_state.enemy_group.add(new_enemy)
+            elif game_state.game_mode == "level" and game_state.current_level == 5:
+                # Boss level (Level 5) - maintain 2 enemies, respawn immediately after death
+                current_alive_enemies = len([enemy for enemy in game_state.enemy_group if not enemy.dying])
+                for _ in enemies_to_remove:
+                    # Spawn new enemy at different positions to avoid overlap
+                    spawn_positions = [
+                        (5 * constants.TILE_SIZE, 5 * constants.TILE_SIZE),
+                        (39 * constants.TILE_SIZE, 39 * constants.TILE_SIZE),
+                        (5 * constants.TILE_SIZE, 39 * constants.TILE_SIZE),
+                        (39 * constants.TILE_SIZE, 5 * constants.TILE_SIZE)
+                    ]
+                    spawn_pos = spawn_positions[current_alive_enemies % len(spawn_positions)]
+                    new_enemy = Enemy(spawn_pos)
+                    new_enemy.speed = constants.ENEMY_SPEED + constants.HATE_VALUE
+                    game_state.enemy_group.add(new_enemy)
+                    current_alive_enemies += 1
+                print(f"Boss level: Enemy respawned, total enemies: {len([e for e in game_state.enemy_group if not e.dying])}")
 
         # Handle item pickup
         handle_item_pickup()
@@ -148,9 +186,35 @@ def check_victory_condition():
     
     if game_state.has_key and game_state.player.rect.colliderect(game_state.game_exit_rect):
         door_open_sound.play()
+        
+        # Handle level completion for level mode
+        if game_state.game_mode == "level":
+            unlock_next_level(game_state.current_level)
+        
         show_victory_screen()
         return True
     return False
+
+def unlock_next_level(completed_level):
+    """Unlock the next level after completing current level"""
+    from config import load_config, save_config
+    config = load_config()
+    
+    # Add to completed levels
+    completed_levels = config.get("completed_levels", [])
+    if completed_level not in completed_levels:
+        completed_levels.append(completed_level)
+        config["completed_levels"] = completed_levels
+    
+    # Unlock next level
+    unlocked_levels = config.get("unlocked_levels", [1])
+    next_level = completed_level + 1
+    if next_level not in unlocked_levels and next_level <= 20:  # The maximum is only 20 levels
+        unlocked_levels.append(next_level)
+        config["unlocked_levels"] = unlocked_levels
+        print(f"Unlock Level {next_level} !")
+    
+    save_config(config)
 
 def handle_enemy_collision():
     """Handle enemy collision with player"""
@@ -185,10 +249,6 @@ def handle_enemy_collision():
             
             print(f"Hate value increased to: {constants.HATE_VALUE}, Enemy speed now: {new_enemy_speed}")
             
-            for enemy in alive_enemies:
-                if enemy != enemy_hit:
-                    enemy.start_attack()
-            
             # Removes red effect and grants temporary invincibility
             game_state.player.conditional_effect_active_red = False
             game_state.player.invincible = True
@@ -198,13 +258,15 @@ def handle_enemy_collision():
             # Blue item effect - Freeze
             freeze_sound.play()
 
+            # Freeze only the enemy that collided with the player
+            if not enemy_hit.dying:
+                enemy_hit.frozen = True
+            
             constants.HATE_VALUE += 1
             
             new_enemy_speed = constants.ENEMY_SPEED + constants.HATE_VALUE
             for enemy in game_state.enemy_group:
                 enemy.speed = new_enemy_speed
-                if not enemy.dying:
-                    enemy.frozen = True
             pygame.time.set_timer(pygame.USEREVENT + 2, constants.FREEZE_DURATION, loops=1)
             game_state.player.conditional_effect_active_blue = False
             game_state.player.invincible = True

@@ -60,7 +60,7 @@ class Player(pygame.sprite.Sprite):
         self.current_frame = 0
         self.image = self.frames[self.current_frame]
         self.rect = self.image.get_rect(topleft=pos)
-        self.collision_rect = self.rect.inflate(-10, -10)
+        self.collision_rect = self.rect.inflate(-20, -20)
         self.speed = constants.PLAYER_SPEED
         self.base_speed = constants.PLAYER_SPEED
         self.facing_right = True
@@ -103,7 +103,7 @@ class Player(pygame.sprite.Sprite):
     
     def increase_permanent_speed(self):
         """Permanently increases the player's base speed"""
-        self.base_speed += 0.5
+        self.base_speed += 0.75
         if not self.is_boost:
             self.speed = self.base_speed
         print(f"Player base speed increased to: {self.base_speed}")

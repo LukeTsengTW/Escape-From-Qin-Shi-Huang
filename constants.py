@@ -5,7 +5,10 @@ config = load_config()
 # Game window settings
 WIDTH, HEIGHT = config["resolution_width"], config["resolution_height"]
 TILE_SIZE = 40
-MAZE_COLS, MAZE_ROWS = 31, 31
+MAZE_COLS, MAZE_ROWS = 31, 31  # Default maze size, can be updated dynamically
+
+# Level 5 (Boss level) uses 41x41 maze
+BOSS_MAZE_COLS, BOSS_MAZE_ROWS = 41, 41
 
 # Game mechanics
 PLAYER_SPEED = 2
@@ -21,9 +24,9 @@ BLUE_DURATION = 10000
 INVISIBLE_DURATION = 10000
 
 # Stamina System
-SPRINT_SPEED_BONUS = 2
+SPRINT_SPEED_BONUS = 3
 STAMINA_MAX = 2000
-STAMINA_RECOVERY_RATE = 0.8
+STAMINA_RECOVERY_RATE = 0.9
 STAMINA_BAR_WIDTH = 60
 STAMINA_BAR_HEIGHT = 8
 
@@ -31,6 +34,11 @@ STAMINA_BAR_HEIGHT = 8
 SPAWN_ITEMS_TIMES = 3
 DIFFICULTY = config["DIFFICULTY"]
 FIRST_OPEN_GAME = config["first_open_game"]
+
+# Level system
+TOTAL_LEVELS = 20
+CURRENT_LEVEL = 1
+GAME_MODE = "random"  # "level" or "random"
 
 master_volume, music_volume, sfx_volume = config["master_volume"], config["music_volume"], config["sfx_volume"]
 

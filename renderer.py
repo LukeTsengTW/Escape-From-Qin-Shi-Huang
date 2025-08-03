@@ -112,6 +112,15 @@ def draw_ui():
     remain_time = max(0, int((constants.INVISIBLE_DURATION - elapsed_time) / 1000))
     screen.blit(font.render(f"{translations[current_language]['invisible_time']} {remain_time}s", True, constants.YELLOW), (10, 10))
     
+    # Game mode and level info (top center)
+    if game_state.game_mode == "level":
+        level_text = f"{translations[current_language]['level']} {game_state.current_level}"
+        level_surface = font.render(level_text, True, constants.WHITE)
+        level_rect = level_surface.get_rect()
+        level_rect.centerx = constants.WIDTH // 2
+        level_rect.y = 10
+        screen.blit(level_surface, level_rect)
+    
     # Key status
     if game_state.has_key:
         screen.blit(font.render(translations[current_language]["is_key_obtained"], True, constants.GREEN), (10, 40))

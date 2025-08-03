@@ -139,6 +139,16 @@ def show_HowToPlay():
     handler = HowToPlayMenuHandler()
     handler.run()
 
+def show_game_mode_selection():
+    """Show game mode selection menu"""
+    handler = GameModeMenuHandler()
+    return handler.run()
+
+def show_level_selection():
+    """Show level selection menu"""
+    handler = LevelSelectionMenuHandler()
+    return handler.run()
+
 def draw_menu_background():
     """Draw menu background elements"""
     if screen is None or font is None:
@@ -183,10 +193,24 @@ def handle_menu_action(action):
     menu_click_sound.play()
     
     if action == "play":
-        main_game_loop = get_game_logic()
-        initialize_game_state()
-        result = main_game_loop()
-        setup_menu_music()
+        # Show game mode selection first
+        selected_mode = show_game_mode_selection()
+        if selected_mode == "level_mode":
+            # Show level selection menu
+            selected_level = show_level_selection()
+            if selected_level is not None:
+                # Level mode - use selected level
+                main_game_loop = get_game_logic()
+                initialize_game_state(regenerate_maze_flag=False, game_mode="level", level_number=selected_level)
+                result = main_game_loop()
+                setup_menu_music()
+        elif selected_mode == "random_mode":
+            # Random mode - use existing random generation
+            main_game_loop = get_game_logic()
+            initialize_game_state(regenerate_maze_flag=True, game_mode="random")
+            result = main_game_loop()
+            setup_menu_music()
+        # If user pressed back, do nothing and return to main menu
         return True  # Continue menu loop
         
     elif action == "setting":

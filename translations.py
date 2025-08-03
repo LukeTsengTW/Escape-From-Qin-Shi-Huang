@@ -68,6 +68,13 @@ translations = {
         "bgm" : "背景音量",
         "se" : "音效音量",
         "stamina": "體力",
+        "select_mode": "選擇模式",
+        "level_mode": "關卡模式",
+        "random_mode": "隨機模式",
+        "level": "關卡",
+        "select_level": "選擇關卡",
+        "locked": "未解鎖",
+        "completed": "已完成",
     },
     "zh_cn": {
         "title": "逃离秦始皇",
@@ -114,6 +121,13 @@ translations = {
         "bgm" : "背景音量",
         "se" : "音效音量",
         "stamina": "体力",
+        "select_mode": "选择模式",
+        "level_mode": "关卡模式",
+        "random_mode": "随机模式",
+        "level": "关卡",
+        "select_level": "选择关卡",
+        "locked": "未解锁",
+        "completed": "已完成",
     },
     "en": {
         "title": "Escape from Qin Shi Huang",
@@ -159,6 +173,13 @@ translations = {
         "bgm" : "BGM Volume",
         "se" : "Sound Effect Volume",
         "stamina": "Stamina",
+        "select_mode": "Select Mode",
+        "level_mode": "Level Mode",
+        "random_mode": "Random Mode",
+        "level": "Level",
+        "select_level": "Select Level",
+        "locked": "Locked",
+        "completed": "Completed",
     }
 }
 
