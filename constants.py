@@ -10,6 +10,9 @@ MAZE_COLS, MAZE_ROWS = 31, 31  # Default maze size, can be updated dynamically
 # Level 5 (Boss level) uses 41x41 maze
 BOSS_MAZE_COLS, BOSS_MAZE_ROWS = 41, 41
 
+# Level 10 (Final Boss level) uses 51x51 maze
+FINAL_BOSS_MAZE_COLS, FINAL_BOSS_MAZE_ROWS = 51, 51
+
 # Game mechanics
 PLAYER_SPEED = 2
 BOOST_SPEED = 4

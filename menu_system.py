@@ -583,33 +583,128 @@ class ResolutionMenuHandler(BaseMenuHandler):
 
 
 class LevelSelectionMenuHandler(BaseMenuHandler):
-    """Handler for level selection menu"""
+    """Handler for level selection menu with pagination"""
     def __init__(self):
         self.config = load_config()
-        unlocked_levels = self.config.get("unlocked_levels", [1])
-        completed_levels = self.config.get("completed_levels", [])
+        self.unlocked_levels = self.config.get("unlocked_levels", [1])
+        self.completed_levels = self.config.get("completed_levels", [])
         
-        options = []
-        # Add levels (showing up to 10 levels for now)
-        for i in range(1, 6): 
-            if i in unlocked_levels:
-                if i in completed_levels:
+        # Pagination settings
+        self.levels_per_page = 5
+        self.total_levels = 10  # 已實現的關卡數量（包含第10關魔王關）
+        self.current_page = 1
+        self.total_pages = (self.total_levels - 1) // self.levels_per_page + 1
+        
+        # Initialize with first page
+        self._update_options()
+        super().__init__(translations[current_language]["select_level"], self.options)
+        self.start_y = constants.HEIGHT // 2 - 50
+    
+    def _update_options(self):
+        """Update options based on current page"""
+        self.options = []
+        
+        # Calculate level range for current page
+        start_level = (self.current_page - 1) * self.levels_per_page + 1
+        end_level = min(start_level + self.levels_per_page - 1, self.total_levels)
+        
+        # Add levels for current page
+        for i in range(start_level, end_level + 1): 
+            if i in self.unlocked_levels:
+                if i in self.completed_levels:
                     level_text = f"{translations[current_language]['level']} {i} ✓ {translations[current_language]['completed']}"
                 else:
                     level_text = f"{translations[current_language]['level']} {i}"
-                options.append(MenuOption(level_text, f"level_{i}"))
+                self.options.append(MenuOption(level_text, f"level_{i}"))
             else:
                 level_text = f"{translations[current_language]['level']} {i} 🔒 {translations[current_language]['locked']}"
-                options.append(MenuOption(level_text, f"locked_{i}"))
+                self.options.append(MenuOption(level_text, f"locked_{i}"))
         
-        options.append(MenuOption(translations[current_language]["back"], "back"))
-        super().__init__(translations[current_language]["select_level"], options)
-        self.start_y = constants.HEIGHT // 2 - 150
+        # Add navigation options
+        navigation_options = []
+        if self.current_page > 1:
+            navigation_options.append(MenuOption(f"← {translations[current_language]['previous_page']}", "prev_page"))
+        if self.current_page < self.total_pages:
+            navigation_options.append(MenuOption(f"{translations[current_language]['next_page']} →", "next_page"))
+        
+        # Add navigation options to the menu
+        if navigation_options:
+            self.options.extend(navigation_options)
+        
+        # Add back button
+        self.options.append(MenuOption(translations[current_language]["back"], "back"))
+    
+    def additional_drawing(self):
+        """Draw page information"""
+        # Draw current page info
+        page_info = f"{translations[current_language]['page']} {self.current_page} {translations[current_language]['page_of']} {self.total_pages}"
+        draw_text_center(page_info, self.font, constants.GRAY, screen, constants.HEIGHT // 4 + 50)
+    
+    def draw_options(self, mouse_pos):
+        """Override to handle special spacing for navigation buttons"""
+        option_rects = []
+        start_y = self.start_y
+        
+        # Count level options (not navigation or back)
+        level_options = [opt for opt in self.options if opt.action.startswith(('level_', 'locked_'))]
+        nav_options = [opt for opt in self.options if opt.action in ['prev_page', 'next_page']]
+        back_option = [opt for opt in self.options if opt.action == 'back'][0]
+        
+        # Draw level options
+        for i, option in enumerate(level_options):
+            y_pos = start_y + i * 50
+            color = constants.RED if pygame.Rect(constants.WIDTH // 2 - 100, y_pos - 25, 200, 50).collidepoint(mouse_pos) else constants.GRAY
+            rect = draw_text_center(option.text, self.font, color, screen, y_pos)
+            option_rects.append((option, rect))
+        
+        # Draw navigation options side by side
+        if nav_options:
+            nav_y = start_y + len(level_options) * 50 + 30
+            if len(nav_options) == 2:  # Both prev and next
+                # Previous page on the left
+                prev_button_x = constants.WIDTH // 2 - 120
+                prev_hover_rect = pygame.Rect(prev_button_x - 50, nav_y - 25, 100, 50)
+                prev_color = constants.RED if prev_hover_rect.collidepoint(mouse_pos) else constants.GRAY
+                prev_text_surface = self.font.render(nav_options[0].text, True, prev_color)
+                prev_rect = prev_text_surface.get_rect(center=(prev_button_x, nav_y))
+                screen.blit(prev_text_surface, prev_rect)
+                option_rects.append((nav_options[0], prev_hover_rect))
+                
+                # Next page on the right
+                next_button_x = constants.WIDTH // 2 + 120
+                next_hover_rect = pygame.Rect(next_button_x - 50, nav_y - 25, 100, 50)
+                next_color = constants.RED if next_hover_rect.collidepoint(mouse_pos) else constants.GRAY
+                next_text_surface = self.font.render(nav_options[1].text, True, next_color)
+                next_rect = next_text_surface.get_rect(center=(next_button_x, nav_y))
+                screen.blit(next_text_surface, next_rect)
+                option_rects.append((nav_options[1], next_hover_rect))
+            else:  # Only one navigation option
+                color = constants.RED if pygame.Rect(constants.WIDTH // 2 - 100, nav_y - 25, 200, 50).collidepoint(mouse_pos) else constants.GRAY
+                rect = draw_text_center(nav_options[0].text, self.font, color, screen, nav_y)
+                option_rects.append((nav_options[0], rect))
+        
+        # Draw back button
+        back_y = start_y + len(level_options) * 50 + (80 if nav_options else 50)
+        color = constants.RED if pygame.Rect(constants.WIDTH // 2 - 100, back_y - 25, 200, 50).collidepoint(mouse_pos) else constants.GRAY
+        rect = draw_text_center(back_option.text, self.font, color, screen, back_y)
+        option_rects.append((back_option, rect))
+        
+        return option_rects
     
     def handle_click(self, option):
         menu_click_sound.play()
         if option.action == "back":
             self.running = False
+            return None
+        elif option.action == "prev_page":
+            if self.current_page > 1:
+                self.current_page -= 1
+                self._update_options()
+            return None
+        elif option.action == "next_page":
+            if self.current_page < self.total_pages:
+                self.current_page += 1
+                self._update_options()
             return None
         elif option.action.startswith("level_"):
             level_num = int(option.action.split("_")[1])

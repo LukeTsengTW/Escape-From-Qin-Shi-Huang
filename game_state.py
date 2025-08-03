@@ -139,6 +139,40 @@ class GameState:
         
         print("Boss level: 2 enemies spawned!")
     
+    def spawn_final_boss_enemies(self):
+        """Spawn 3 enemies for final boss level (Level 10)"""
+        from game_objects import Enemy
+        
+        # Spawn first enemy at a safe distance from player (not at starting position)
+        enemy1 = Enemy((7 * constants.TILE_SIZE, 7 * constants.TILE_SIZE))  # Away from player spawn
+        enemy1.speed = constants.ENEMY_SPEED + constants.HATE_VALUE
+        self.enemy_group.add(enemy1)
+        
+        # Spawn second enemy at opposite corner
+        enemy2 = Enemy((43 * constants.TILE_SIZE, 43 * constants.TILE_SIZE))  # Final boss level is 51x51
+        enemy2.speed = constants.ENEMY_SPEED + constants.HATE_VALUE
+        self.enemy_group.add(enemy2)
+        
+        # Spawn third enemy at another corner
+        enemy3 = Enemy((7 * constants.TILE_SIZE, 43 * constants.TILE_SIZE))  # Third enemy position
+        enemy3.speed = constants.ENEMY_SPEED + constants.HATE_VALUE
+        self.enemy_group.add(enemy3)
+        
+        print("Final Boss level: 3 enemies spawned!")
+    
+    def spawn_single_enemy(self):
+        """Spawn single enemy for levels 6-9"""
+        from game_objects import Enemy
+        
+        # Spawn enemy at a safe distance from player starting position (1,1)
+        # Choose a position far from the starting point
+        enemy_pos = (35 * constants.TILE_SIZE, 35 * constants.TILE_SIZE)  # Far corner for 41x41 maps
+        enemy = Enemy(enemy_pos)
+        enemy.speed = constants.ENEMY_SPEED + constants.HATE_VALUE
+        self.enemy_group.add(enemy)
+        
+        print(f"Level {self.current_level}: 1 enemy spawned!")
+    
     def spawn_items(self):
         """Spawn items on the map"""
         Player, Item, Key = get_game_objects()

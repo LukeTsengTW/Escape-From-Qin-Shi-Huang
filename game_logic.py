@@ -62,14 +62,25 @@ def main_game_loop():
         game_state.player.update(keys)
 
         # Handle enemy spawning based on game mode
-        if game_state.game_mode == "level" and game_state.current_level == 5:
+        if game_state.game_mode == "level" and game_state.current_level == 10:
+            # Final Boss level (Level 10) - maintain 3 enemies max, but wait for invisible duration
+            alive_enemies = [enemy for enemy in game_state.enemy_group if not enemy.dying]
+            if len(alive_enemies) == 0 and game_state.get_elapsed_time() > constants.INVISIBLE_DURATION:
+                # Respawn all three enemies for final boss level
+                game_state.spawn_final_boss_enemies()
+        elif game_state.game_mode == "level" and game_state.current_level == 5:
             # Boss level (Level 5) - maintain 2 enemies max, but wait for invisible duration
             alive_enemies = [enemy for enemy in game_state.enemy_group if not enemy.dying]
             if len(alive_enemies) == 0 and game_state.get_elapsed_time() > constants.INVISIBLE_DURATION:
                 # Respawn both enemies for boss level
                 game_state.spawn_boss_enemies()
+        elif game_state.game_mode == "level" and game_state.current_level >= 6:
+            # Advanced levels (6-9) - spawn single enemy with special positioning
+            alive_enemies = [enemy for enemy in game_state.enemy_group if not enemy.dying]
+            if len(alive_enemies) == 0 and game_state.get_elapsed_time() > constants.INVISIBLE_DURATION:
+                game_state.spawn_single_enemy()
         elif game_state.game_mode == "level":
-            # Standard level mode - spawn single enemy after invisible duration  
+            # Standard level mode (1-4) - spawn single enemy after invisible duration  
             alive_enemies = [enemy for enemy in game_state.enemy_group if not enemy.dying]
             if len(alive_enemies) == 0 and game_state.get_elapsed_time() > constants.INVISIBLE_DURATION:
                 new_enemy = Enemy((constants.TILE_SIZE, constants.TILE_SIZE))
@@ -103,6 +114,25 @@ def main_game_loop():
                     new_enemy = Enemy((constants.TILE_SIZE, constants.TILE_SIZE))
                     new_enemy.speed = constants.ENEMY_SPEED + constants.HATE_VALUE
                     game_state.enemy_group.add(new_enemy)
+            elif game_state.game_mode == "level" and game_state.current_level == 10:
+                # Final Boss level (Level 10) - maintain 3 enemies, respawn immediately after death
+                current_alive_enemies = len([enemy for enemy in game_state.enemy_group if not enemy.dying])
+                for _ in enemies_to_remove:
+                    # Spawn new enemy at different positions to avoid overlap (51x51 map)
+                    spawn_positions = [
+                        (5 * constants.TILE_SIZE, 5 * constants.TILE_SIZE),
+                        (45 * constants.TILE_SIZE, 45 * constants.TILE_SIZE),
+                        (5 * constants.TILE_SIZE, 45 * constants.TILE_SIZE),
+                        (45 * constants.TILE_SIZE, 5 * constants.TILE_SIZE),
+                        (25 * constants.TILE_SIZE, 25 * constants.TILE_SIZE),
+                        (15 * constants.TILE_SIZE, 35 * constants.TILE_SIZE)
+                    ]
+                    spawn_pos = spawn_positions[current_alive_enemies % len(spawn_positions)]
+                    new_enemy = Enemy(spawn_pos)
+                    new_enemy.speed = constants.ENEMY_SPEED + constants.HATE_VALUE
+                    game_state.enemy_group.add(new_enemy)
+                    current_alive_enemies += 1
+                print(f"Final Boss level: Enemy respawned, total enemies: {len([e for e in game_state.enemy_group if not e.dying])}")
             elif game_state.game_mode == "level" and game_state.current_level == 5:
                 # Boss level (Level 5) - maintain 2 enemies, respawn immediately after death
                 current_alive_enemies = len([enemy for enemy in game_state.enemy_group if not enemy.dying])

@@ -75,6 +75,10 @@ translations = {
         "select_level": "選擇關卡",
         "locked": "未解鎖",
         "completed": "已完成",
+        "previous_page": "上一頁",
+        "next_page": "下一頁",
+        "page": "第",
+        "page_of": "頁/",
     },
     "zh_cn": {
         "title": "逃离秦始皇",
@@ -128,6 +132,10 @@ translations = {
         "select_level": "选择关卡",
         "locked": "未解锁",
         "completed": "已完成",
+        "previous_page": "上一页",
+        "next_page": "下一页",
+        "page": "第",
+        "page_of": "页/",
     },
     "en": {
         "title": "Escape from Qin Shi Huang",
@@ -180,6 +188,10 @@ translations = {
         "select_level": "Select Level",
         "locked": "Locked",
         "completed": "Completed",
+        "previous_page": "Previous Page",
+        "next_page": "Next Page",
+        "page": "Page",
+        "page_of": "of",
     }
 }
 

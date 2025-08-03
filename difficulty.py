@@ -13,7 +13,7 @@ class DifficultyConfig:
             "invisible_duration": 6000,
             "red_duration": 7000,
             "blue_duration": 7000,
-            "spawn_items_times": 5,
+            "spawn_items_times": 6,
             "description": "Easy mode - More forgiving gameplay"
         },
         "normal": {
@@ -24,7 +24,7 @@ class DifficultyConfig:
             "invisible_duration": 3000,
             "red_duration": 5000,
             "blue_duration": 5000,
-            "spawn_items_times": 4,
+            "spawn_items_times": 5,
             "description": "Normal mode - Balanced difficulty"
         },
         "difficult": {
@@ -35,7 +35,7 @@ class DifficultyConfig:
             "invisible_duration": 6000,
             "red_duration": 3000,
             "blue_duration": 3000,
-            "spawn_items_times": 3,
+            "spawn_items_times": 4,
             "description": "Difficult mode - Challenging gameplay"
         }
     }
