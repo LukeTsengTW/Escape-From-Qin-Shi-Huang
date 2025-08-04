@@ -591,7 +591,7 @@ class LevelSelectionMenuHandler(BaseMenuHandler):
         
         # Pagination settings
         self.levels_per_page = 5
-        self.total_levels = 10  # 已實現的關卡數量（包含第10關魔王關）
+        self.total_levels = 15  # Number of levels implemented
         self.current_page = 1
         self.total_pages = (self.total_levels - 1) // self.levels_per_page + 1
         
