@@ -118,7 +118,7 @@ class Player(pygame.sprite.Sprite):
         # Calculate current speed (base speed + boost + sprint)
         current_speed = self.base_speed
         if self.is_boost:
-            current_speed = constants.BOOST_SPEED
+            current_speed += constants.BOOST_SPEED
         if self.is_sprinting:
             current_speed += constants.SPRINT_SPEED_BONUS
         

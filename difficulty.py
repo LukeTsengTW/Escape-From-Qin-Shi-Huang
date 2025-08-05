@@ -6,7 +6,7 @@ class DifficultyConfig:
     # Define difficulty settings as class constants
     DIFFICULTY_SETTINGS = {
         "easy": {
-            "boost_speed": 5,
+            "boost_speed": 2,
             "enemy_speed_base": 2,
             "boost_duration": 3000,
             "freeze_duration": 3000,
@@ -17,7 +17,7 @@ class DifficultyConfig:
             "description": "Easy mode - More forgiving gameplay"
         },
         "normal": {
-            "boost_speed": 5,
+            "boost_speed": 2,
             "enemy_speed_base": 3,
             "boost_duration": 2500,
             "freeze_duration": 3000,
@@ -28,7 +28,7 @@ class DifficultyConfig:
             "description": "Normal mode - Balanced difficulty"
         },
         "difficult": {
-            "boost_speed": 5,
+            "boost_speed": 3,
             "enemy_speed_base": 4,
             "boost_duration": 2000,
             "freeze_duration": 3000,
